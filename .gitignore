@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# project-specific
+public/uploads/avatars/*.webp
+public/uploads/avatars/*.jpg
+public/uploads/avatars/*.png
+.claude/
+CLAUDE.local.md
+bash.exe.stackdump
