@@ -12,7 +12,11 @@ import { useAuth } from '../../../context/AuthContext.jsx';
 import api from '../../../lib/api.js';
 import { getErrorMessage } from '../../../lib/utils.js';
 import {
-  CalendarDaysIcon, CheckIcon, XMarkIcon, AtSymbolIcon, ArrowUturnLeftIcon,
+  CalendarDaysIcon,
+  CheckIcon,
+  XMarkIcon,
+  AtSymbolIcon,
+  ArrowUturnLeftIcon,
 } from '@heroicons/react/24/outline';
 
 const INITIAL = {
@@ -44,7 +48,11 @@ export default function TicketFormPage() {
 
   const [clients, setClients] = useState([]);
   const [employees, setEmployees] = useState([]);
-  const [settings, setSettings] = useState({ priceTypes: [], serviceTypes: [], executionTypes: [] });
+  const [settings, setSettings] = useState({
+    priceTypes: [],
+    serviceTypes: [],
+    executionTypes: [],
+  });
 
   // Client autocomplete
   const [clientSearch, setClientSearch] = useState('');
@@ -74,8 +82,10 @@ export default function TicketFormPage() {
         api.get('/employees/executors'),
       ]);
       if (clientsRes.status === 'fulfilled') setClients(clientsRes.value.data);
-      if (settingsRes.status === 'fulfilled') setSettings(settingsRes.value.data);
-      if (employeesRes.status === 'fulfilled') setEmployees(employeesRes.value.data);
+      if (settingsRes.status === 'fulfilled')
+        setSettings(settingsRes.value.data);
+      if (employeesRes.status === 'fulfilled')
+        setEmployees(employeesRes.value.data);
 
       if (isEdit) {
         const { data } = await api.get(`/tickets/${id}`);
@@ -102,7 +112,10 @@ export default function TicketFormPage() {
         if (data.client?.name) setClientSearch(data.client.name);
         if (data.orderedBy) setOrderedByInput(data.orderedBy);
       } else if (settingsRes.value?.data?.executionTypes?.length) {
-        setForm((p) => ({ ...p, category: settingsRes.value.data.executionTypes[0] }));
+        setForm((p) => ({
+          ...p,
+          category: settingsRes.value.data.executionTypes[0],
+        }));
       }
     };
     load();
@@ -127,9 +140,12 @@ export default function TicketFormPage() {
   // Outside click handlers
   useEffect(() => {
     const h = (e) => {
-      if (clientRef.current && !clientRef.current.contains(e.target)) setClientDropdown(false);
-      if (calendarRef.current && !calendarRef.current.contains(e.target)) setCalendarOpen(false);
-      if (orderedByRef.current && !orderedByRef.current.contains(e.target)) setOrderedByDropdown(false);
+      if (clientRef.current && !clientRef.current.contains(e.target))
+        setClientDropdown(false);
+      if (calendarRef.current && !calendarRef.current.contains(e.target))
+        setCalendarOpen(false);
+      if (orderedByRef.current && !orderedByRef.current.contains(e.target))
+        setOrderedByDropdown(false);
     };
     document.addEventListener('mousedown', h);
     return () => document.removeEventListener('mousedown', h);
@@ -144,24 +160,46 @@ export default function TicketFormPage() {
     const q = e.target.value;
     setClientSearch(q);
     setClientDropdown(true);
-    if (!q.trim()) { setFilteredClients(clients); return; }
+    if (!q.trim()) {
+      setFilteredClients(clients);
+      return;
+    }
     const lq = q.toLowerCase();
-    setFilteredClients(clients.filter((c) =>
-      c.name?.toLowerCase().includes(lq) || c.nip?.includes(lq) || c.tags?.some((t) => t.toLowerCase().includes(lq))
-    ));
+    setFilteredClients(
+      clients.filter(
+        (c) =>
+          c.name?.toLowerCase().includes(lq) ||
+          c.nip?.includes(lq) ||
+          c.tags?.some((t) => t.toLowerCase().includes(lq)),
+      ),
+    );
   };
 
   const handleClientSelect = (client) => {
-    setForm((p) => ({ ...p, client: client._id, email: client.email || p.email, orderedBy: '' }));
+    setForm((p) => ({
+      ...p,
+      client: client._id,
+      email: client.email || p.email,
+      orderedBy: '',
+    }));
     setClientSearch(client.name);
     setClientDropdown(false);
     setOrderedByInput('');
   };
 
   const handleSubmit = async (sendEmail = false) => {
-    if (!form.client) { toast.error('Wybierz klienta'); return; }
-    if (!form.description) { toast.error('Opis jest wymagany'); return; }
-    if (!form.service_type) { toast.error('Wybierz rodzaj usługi'); return; }
+    if (!form.client) {
+      toast.error('Wybierz klienta');
+      return;
+    }
+    if (!form.description) {
+      toast.error('Opis jest wymagany');
+      return;
+    }
+    if (!form.service_type) {
+      toast.error('Wybierz rodzaj usługi');
+      return;
+    }
 
     setSaving(true);
     try {
@@ -200,37 +238,44 @@ export default function TicketFormPage() {
 
   const selectedClient = clients.find((c) => c._id === form.client);
 
+  const st = form.invoiced ? 'invoiced' : form.reportSent ? 'sent' : 'waiting';
+  const label = {
+    waiting: 'Klient oczekuje na raport',
+    sent: 'Raport wysłany',
+    invoiced: 'Zlecenie zafakturowane',
+  }[st];
+
+  const cls = {
+    waiting: 'bg-amber-50 text-amber-700 border border-amber-200',
+    sent: 'bg-sky-50 text-sky-700 border border-sky-200',
+    invoiced: 'bg-teal-50 text-teal-700 border border-teal-200',
+  }[st];
+
   return (
     <Layout>
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
-          {isEdit ? 'Edytuj zlecenie' : 'Nowe zlecenie'}
-        </h1>
-
         <div className="card">
           {/* Header */}
           <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-600">
-              {isEdit ? 'Edycja' : 'Nowe'}
-            </span>
-            {/* Computed status badge */}
-            {(() => {
-              const st = form.invoiced ? 'invoiced' : form.reportSent ? 'sent' : 'waiting';
-              const label = { waiting: 'Oczekujące', sent: 'Wysłane', invoiced: 'Zafakturowane' }[st];
-              const cls = {
-                waiting: 'bg-amber-50 text-amber-700 border border-amber-200',
-                sent: 'bg-blue-50 text-blue-700 border border-blue-200',
-                invoiced: 'bg-green-50 text-green-700 border border-green-200',
-              }[st];
-              return <span className={`text-xs px-3 py-1 rounded-full font-medium ${cls}`}>{label}</span>;
-            })()}
+            <h1 className="text-sm font-medium text-gray-600">
+              {isEdit ? 'Edytuj zlecenie' : 'Nowe zlecenie'}
+            </h1>
+            {isEdit && (
+              <span
+                className={`text-xs px-3 py-1 rounded-full font-medium ${cls}`}
+              >
+                {label}
+              </span>
+            )}
           </div>
 
           <div className="p-6 space-y-4 max-h-[calc(100vh-280px)] overflow-y-auto custom-scrollbar">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Date */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Data *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Data *
+                </label>
                 <div ref={calendarRef} className="relative">
                   <button
                     type="button"
@@ -246,7 +291,13 @@ export default function TicketFormPage() {
                         mode="single"
                         selected={new Date(form.date)}
                         onSelect={(d) => {
-                          if (d) { setForm((p) => ({ ...p, date: moment(d).format('YYYY-MM-DD') })); setCalendarOpen(false); }
+                          if (d) {
+                            setForm((p) => ({
+                              ...p,
+                              date: moment(d).format('YYYY-MM-DD'),
+                            }));
+                            setCalendarOpen(false);
+                          }
                         }}
                         locale={pl}
                         navLayout="around"
@@ -259,10 +310,19 @@ export default function TicketFormPage() {
 
               {/* Executor */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Wykonawca</label>
-                <select name="executor" value={form.executor} onChange={handleChange} className="input">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Wykonawca
+                </label>
+                <select
+                  name="executor"
+                  value={form.executor}
+                  onChange={handleChange}
+                  className="input"
+                >
                   {employees.map((e) => (
-                    <option key={e._id} value={e._id}>{e.name} {e.surname}</option>
+                    <option key={e._id} value={e._id}>
+                      {e.name} {e.surname}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -270,13 +330,18 @@ export default function TicketFormPage() {
 
             {/* Client autocomplete */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Klient *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Klient *
+              </label>
               <div ref={clientRef} className="relative">
                 <input
                   className="input"
                   value={clientSearch}
                   onChange={handleClientSearch}
-                  onFocus={() => { setClientDropdown(true); setFilteredClients(clients); }}
+                  onFocus={() => {
+                    setClientDropdown(true);
+                    setFilteredClients(clients);
+                  }}
                   placeholder="Szukaj po nazwie, NIP lub tagach..."
                 />
                 {clientDropdown && filteredClients.length > 0 && (
@@ -287,12 +352,21 @@ export default function TicketFormPage() {
                         onClick={() => handleClientSelect(c)}
                         className="px-4 py-2.5 hover:bg-sky-50 cursor-pointer border-b border-gray-50 last:border-0"
                       >
-                        <div className="font-medium text-sm text-gray-900">{c.code}</div>
-                        <div className="text-xs text-gray-500">{c.name} {c.nip && `· NIP: ${c.nip}`}</div>
+                        <div className="font-medium text-sm text-gray-900">
+                          {c.code}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {c.name} {c.nip && `· NIP: ${c.nip}`}
+                        </div>
                         {c.tags?.length > 0 && (
                           <div className="flex gap-1 mt-0.5 flex-wrap">
                             {c.tags.map((tag, i) => (
-                              <span key={i} className="text-xs bg-gray-100 text-gray-600 rounded-full px-1.5 py-0.5">#{tag}</span>
+                              <span
+                                key={i}
+                                className="text-xs bg-gray-100 text-gray-600 rounded-full px-1.5 py-0.5"
+                              >
+                                #{tag}
+                              </span>
                             ))}
                           </div>
                         )}
@@ -306,7 +380,9 @@ export default function TicketFormPage() {
             {/* Ordered by — combobox */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kto zlecił</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Kto zlecił
+                </label>
                 <div ref={orderedByRef} className="relative">
                   <input
                     className="input"
@@ -316,37 +392,61 @@ export default function TicketFormPage() {
                       setForm((p) => ({ ...p, orderedBy: e.target.value }));
                       if (form.client) setOrderedByDropdown(true);
                     }}
-                    onFocus={() => { if (form.client && selectedClient?.contactPerson?.length) setOrderedByDropdown(true); }}
+                    onFocus={() => {
+                      if (form.client && selectedClient?.contactPerson?.length)
+                        setOrderedByDropdown(true);
+                    }}
                     placeholder="Wpisz lub wybierz..."
                     disabled={!form.client}
                   />
-                  {orderedByDropdown && selectedClient?.contactPerson?.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-40 overflow-y-auto">
-                      {selectedClient.contactPerson
-                        .filter((p) => !orderedByInput || p.toLowerCase().includes(orderedByInput.toLowerCase()))
-                        .map((p, i) => (
-                          <div
-                            key={i}
-                            onClick={() => { setOrderedByInput(p); setForm((f) => ({ ...f, orderedBy: p })); setOrderedByDropdown(false); }}
-                            className="px-4 py-2 hover:bg-sky-50 cursor-pointer text-sm text-gray-800 border-b border-gray-50 last:border-0"
-                          >
-                            {p}
-                          </div>
-                        ))}
-                    </div>
-                  )}
+                  {orderedByDropdown &&
+                    selectedClient?.contactPerson?.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+                        {selectedClient.contactPerson
+                          .filter(
+                            (p) =>
+                              !orderedByInput ||
+                              p
+                                .toLowerCase()
+                                .includes(orderedByInput.toLowerCase()),
+                          )
+                          .map((p, i) => (
+                            <div
+                              key={i}
+                              onClick={() => {
+                                setOrderedByInput(p);
+                                setForm((f) => ({ ...f, orderedBy: p }));
+                                setOrderedByDropdown(false);
+                              }}
+                              className="px-4 py-2 hover:bg-sky-50 cursor-pointer text-sm text-gray-800 border-b border-gray-50 last:border-0"
+                            >
+                              {p}
+                            </div>
+                          ))}
+                      </div>
+                    )}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
-                <input type="email" name="email" value={form.email} onChange={handleChange} className="input" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  E-mail
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  className="input"
+                />
               </div>
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Opis *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Opis *
+              </label>
               <textarea
                 name="description"
                 value={form.description}
@@ -359,7 +459,9 @@ export default function TicketFormPage() {
 
             {/* Note */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Uwagi</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Uwagi
+              </label>
               <textarea
                 name="note"
                 value={form.note}
@@ -371,7 +473,9 @@ export default function TicketFormPage() {
 
             {/* Time */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Czas</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Czas
+              </label>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1">
                   <input
@@ -400,23 +504,60 @@ export default function TicketFormPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Rodzaj usługi *</label>
-                <select name="service_type" value={form.service_type} onChange={handleChange} className="input">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Rodzaj usługi *
+                </label>
+                <select
+                  name="service_type"
+                  value={form.service_type}
+                  onChange={handleChange}
+                  className="input"
+                >
                   <option value="">Wybierz</option>
-                  {settings.serviceTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+                  {settings.serviceTypes.map((t) => (
+                    <option key={t} value={t} checked={t === 'Zlecenie'}>
+                      {t}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Cena</label>
-                <select name="priceType" value={form.priceType} onChange={handleChange} className="input">
-                  {settings.priceTypes.map((t) => <option key={t} value={t}>{t} zł/h</option>)}
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Cena
+                </label>
+                <select
+                  name="priceType"
+                  value={form.priceType}
+                  onChange={handleChange}
+                  className="input"
+                >
+                  {settings.priceTypes.map((t) => (
+                    <option
+                      key={t}
+                      value={t}
+                      checked={t === 250 ? true : false}
+                    >
+                      {t} zł/h
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kategoria *</label>
-                <select name="category" value={form.category} onChange={handleChange} className="input">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Kategoria *
+                </label>
+                <select
+                  name="category"
+                  value={form.category}
+                  onChange={handleChange}
+                  className="input"
+                >
                   <option value="">Wybierz</option>
-                  {settings.executionTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+                  {settings.executionTypes.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -434,7 +575,9 @@ export default function TicketFormPage() {
                 <span className="text-sm text-gray-700">Dojazd</span>
               </label>
               {/* invoiced is irreversible — read-only once true */}
-              <label className={`flex items-center gap-2 ${form.invoiced ? 'opacity-70' : 'cursor-pointer'}`}>
+              <label
+                className={`flex items-center gap-2 ${form.invoiced ? 'opacity-70' : 'cursor-pointer'}`}
+              >
                 <input
                   type="checkbox"
                   name="invoiced"
@@ -445,7 +588,11 @@ export default function TicketFormPage() {
                 />
                 <span className="text-sm text-gray-700">
                   Zafakturowane
-                  {form.invoiced && <span className="ml-1 text-xs text-gray-400">(nieodwracalne)</span>}
+                  {form.invoiced && (
+                    <span className="ml-1 text-xs text-gray-400">
+                      (nieodwracalne)
+                    </span>
+                  )}
                 </span>
               </label>
             </div>
@@ -455,21 +602,36 @@ export default function TicketFormPage() {
           <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
             <div>
               {isEdit && (
-                <button onClick={() => setDeleteDialog(true)} className="btn-danger text-sm">
+                <button
+                  onClick={() => setDeleteDialog(true)}
+                  className="btn-danger text-sm"
+                >
                   <XMarkIcon className="h-4 w-4" />
                   Usuń
                 </button>
               )}
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => router.push('/tickets')} className="btn-ghost">
+              <button
+                onClick={() => router.push('/tickets')}
+                className="btn-ghost"
+              >
                 <ArrowUturnLeftIcon className="h-4 w-4" />
                 Anuluj
               </button>
-              <button onClick={() => handleSubmit(true)} disabled={saving} className="btn bg-teal-500 text-white hover:bg-teal-600" title="Zapisz i wyślij email">
+              <button
+                onClick={() => handleSubmit(true)}
+                disabled={saving}
+                className="btn bg-teal-500 text-white hover:bg-teal-600"
+                title="Zapisz i wyślij email"
+              >
                 <AtSymbolIcon className="h-4 w-4" />
               </button>
-              <button onClick={() => handleSubmit(false)} disabled={saving} className="btn-primary">
+              <button
+                onClick={() => handleSubmit(false)}
+                disabled={saving}
+                className="btn-primary"
+              >
                 <CheckIcon className="h-4 w-4" />
                 {saving ? 'Zapisuję...' : 'Zapisz'}
               </button>
