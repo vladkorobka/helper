@@ -10,8 +10,11 @@ import { employeeRepository } from '../repositories/employee.repository.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const AVATARS_DIR = path.join(process.cwd(), 'public/uploads/avatars');
 
-// Ensure upload dir exists
-if (!fs.existsSync(AVATARS_DIR)) fs.mkdirSync(AVATARS_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(AVATARS_DIR)) fs.mkdirSync(AVATARS_DIR, { recursive: true });
+} catch (_) {
+  // read-only filesystem (e.g. Vercel) — avatar uploads disabled
+}
 
 export const employeeService = {
   async list() {
