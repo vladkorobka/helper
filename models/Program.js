@@ -12,4 +12,4 @@ const programSchema = new mongoose.Schema(
 
 programSchema.index({ name: 1 });
 
-export const Program = mongoose.model('Program', programSchema);
+export const Program = mongoose.models.Program || mongoose.model('Program', programSchema);

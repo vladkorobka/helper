@@ -14,7 +14,7 @@ export const ticketService = {
   async list(query) {
     await connectDB();
     const {
-      description,
+      search,
       client,
       executor,
       status,
@@ -32,9 +32,18 @@ export const ticketService = {
       match.date = { $gte: start, $lt: end };
     }
 
-    if (description) {
-      const safe = description.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      match.description = { $regex: safe, $options: 'i' };
+    if (search) {
+      const safe = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = { $regex: safe, $options: 'i' };
+      match.$or = [
+        { description: re },
+        { 'client.code': re },
+        { 'client.name': re },
+        { 'client.nip': re },
+        { 'client.tags': re },
+        { 'executor.name': re },
+        { 'executor.surname': re },
+      ];
     }
 
     if (client && mongoose.Types.ObjectId.isValid(client)) {

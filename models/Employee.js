@@ -64,4 +64,4 @@ employeeSchema.set('toJSON', {
   },
 });
 
-export const Employee = mongoose.model('Employee', employeeSchema);
+export const Employee = mongoose.models.Employee || mongoose.model('Employee', employeeSchema);

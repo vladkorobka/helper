@@ -26,4 +26,4 @@ const inviteSchema = new mongoose.Schema(
 inviteSchema.index({ email: 1 });
 inviteSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-export const Invite = mongoose.model('Invite', inviteSchema);
+export const Invite = mongoose.models.Invite || mongoose.model('Invite', inviteSchema);

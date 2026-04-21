@@ -24,7 +24,7 @@ const SORT_KEY = 'helper_tickets_sort';
 const FILTER_KEY = 'helper_tickets_filters';
 
 const DEFAULT_FILTERS = {
-  description: '',
+  search: '',
   client: '',
   executor: '',
   status: '',
@@ -68,7 +68,7 @@ export default function TicketsPage() {
       sortField: sort.field,
       sortOrder: sort.order,
     });
-    if (filters.description) params.set('description', filters.description);
+    if (filters.search) params.set('search', filters.search);
     if (filters.client) params.set('client', filters.client);
     if (filters.executor) params.set('executor', filters.executor);
     if (filters.status) params.set('status', filters.status);
@@ -128,9 +128,9 @@ export default function TicketsPage() {
               <MagnifyingGlassIcon className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 className="input pl-9"
-                placeholder="Szukaj w opisach..."
-                value={filters.description}
-                onChange={(e) => setFilters((p) => ({ ...p, description: e.target.value }))}
+                placeholder="Szukaj po opisie, kliencie, NIP, wykonawcy..."
+                value={filters.search}
+                onChange={(e) => setFilters((p) => ({ ...p, search: e.target.value }))}
               />
             </div>
             <button

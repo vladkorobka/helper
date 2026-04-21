@@ -35,4 +35,4 @@ ticketSchema.index({ executor: 1, date: -1 });
 ticketSchema.index({ status: 1 });
 ticketSchema.index({ createdAt: -1 });
 
-export const Ticket = mongoose.model('Ticket', ticketSchema);
+export const Ticket = mongoose.models.Ticket || mongoose.model('Ticket', ticketSchema);
