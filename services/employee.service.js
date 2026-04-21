@@ -1,20 +1,11 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
 import crypto from 'crypto';
 import sharp from 'sharp';
+import { v2 as cloudinary } from 'cloudinary';
 import { connectDB } from '../lib/db.js';
 import { Employee } from '../models/Employee.js';
 import { employeeRepository } from '../repositories/employee.repository.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const AVATARS_DIR = path.join(process.cwd(), 'public/uploads/avatars');
-
-try {
-  if (!fs.existsSync(AVATARS_DIR)) fs.mkdirSync(AVATARS_DIR, { recursive: true });
-} catch (_) {
-  // read-only filesystem (e.g. Vercel) — avatar uploads disabled
-}
+cloudinary.config({ cloudinary_url: process.env.CLOUDINARY_URL });
 
 export const employeeService = {
   async list() {
@@ -36,11 +27,9 @@ export const employeeService = {
 
   async create(data) {
     await connectDB();
-    // Generate login from email if not provided
     if (!data.login) {
       data.login = data.email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
     }
-    // Generate temp password if not provided
     if (!data.password) {
       data.password = crypto.randomBytes(8).toString('hex') + 'A1';
     }
@@ -85,59 +74,34 @@ export const employeeService = {
     return employee.toJSON();
   },
 
-  // Accepts a Buffer (used by Next.js API routes via formidable/multer)
   async uploadAvatarBuffer(userId, buffer) {
     await connectDB();
     if (!buffer) throw Object.assign(new Error('Brak pliku'), { statusCode: 400 });
 
-    const outputFilename = `avatar-${userId}-${Date.now()}.webp`;
-    const outputPath = path.join(AVATARS_DIR, outputFilename);
-
-    await sharp(buffer)
+    const webpBuffer = await sharp(buffer)
       .resize(200, 200, { fit: 'cover', position: 'center' })
       .webp({ quality: 85 })
-      .toFile(outputPath);
+      .toBuffer();
 
     const employee = await Employee.findById(userId);
-    if (employee?.avatar) {
-      const oldPath = path.join(process.cwd(), 'public', employee.avatar);
-      fs.unlink(oldPath, () => {});
+
+    // Delete old avatar from Cloudinary
+    if (employee?.avatarPublicId) {
+      await cloudinary.uploader.destroy(employee.avatarPublicId).catch(() => {});
     }
 
-    const avatarUrl = `/uploads/avatars/${outputFilename}`;
-    await Employee.findByIdAndUpdate(userId, { avatar: avatarUrl });
-    return { avatar: avatarUrl };
-  },
+    const uploaded = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        { folder: 'helper/avatars', public_id: `avatar-${userId}`, overwrite: true },
+        (err, result) => (err ? reject(err) : resolve(result))
+      ).end(webpBuffer);
+    });
 
-  // Accepts a file object from multer (kept for compatibility)
-  async uploadAvatar(userId, file) {
-    await connectDB();
-    if (!file) throw Object.assign(new Error('Brak pliku'), { statusCode: 400 });
+    await Employee.findByIdAndUpdate(userId, {
+      avatar: uploaded.secure_url,
+      avatarPublicId: uploaded.public_id,
+    });
 
-    const outputFilename = `avatar-${userId}-${Date.now()}.webp`;
-    const outputPath = path.join(AVATARS_DIR, outputFilename);
-
-    // Process: resize to 200x200 using sharp + save as webp
-    await sharp(file.path)
-      .resize(200, 200, { fit: 'cover', position: 'center' })
-      .webp({ quality: 85 })
-      .toFile(outputPath);
-
-    // Remove original upload if different from output
-    if (file.path !== outputPath) {
-      fs.unlink(file.path, () => {});
-    }
-
-    // Remove old avatar
-    const employee = await Employee.findById(userId);
-    if (employee?.avatar) {
-      const oldPath = path.join(process.cwd(), 'public', employee.avatar);
-      fs.unlink(oldPath, () => {});
-    }
-
-    const avatarUrl = `/uploads/avatars/${outputFilename}`;
-    await Employee.findByIdAndUpdate(userId, { avatar: avatarUrl });
-
-    return { avatar: avatarUrl };
+    return { avatar: uploaded.secure_url };
   },
 };

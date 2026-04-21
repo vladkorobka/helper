@@ -27,6 +27,7 @@ const employeeSchema = new mongoose.Schema(
       default: ['tickets'],
     },
     avatar: { type: String, default: null },
+    avatarPublicId: { type: String, default: null },
     // Invite/onboarding
     isVerified: { type: Boolean, default: false },
     inviteToken: { type: String, select: false },
