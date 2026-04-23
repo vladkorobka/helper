@@ -28,6 +28,7 @@ const employeeSchema = new mongoose.Schema(
     },
     avatar: { type: String, default: null },
     avatarPublicId: { type: String, default: null },
+    preferredCategory: { type: String, default: '' },
     // Invite/onboarding
     isVerified: { type: Boolean, default: false },
     inviteToken: { type: String, select: false },

@@ -50,38 +50,65 @@ function TicketFormSkeleton() {
           </div>
           <div className="p-6 space-y-4 max-h-[calc(100vh-280px)] overflow-y-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5"><S className="w-16 h-4" /><S className="w-full h-10" /></div>
-              <div className="space-y-1.5"><S className="w-24 h-4" /><S className="w-full h-10" /></div>
+              <div className="space-y-1.5">
+                <S className="w-16 h-4" />
+                <S className="w-full h-10" />
+              </div>
+              <div className="space-y-1.5">
+                <S className="w-24 h-4" />
+                <S className="w-full h-10" />
+              </div>
             </div>
-            <div className="space-y-1.5"><S className="w-14 h-4" /><S className="w-full h-10" /></div>
+            <div className="space-y-1.5">
+              <S className="w-14 h-4" />
+              <S className="w-full h-10" />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5"><S className="w-20 h-4" /><S className="w-full h-10" /></div>
-              <div className="space-y-1.5"><S className="w-16 h-4" /><S className="w-full h-10" /></div>
+              <div className="space-y-1.5">
+                <S className="w-20 h-4" />
+                <S className="w-full h-10" />
+              </div>
+              <div className="space-y-1.5">
+                <S className="w-16 h-4" />
+                <S className="w-full h-10" />
+              </div>
             </div>
-            <div className="space-y-1.5"><S className="w-12 h-4" /><S className="w-full h-24" /></div>
-            <div className="space-y-1.5"><S className="w-16 h-4" /><S className="w-full h-16" /></div>
+            <div className="space-y-1.5">
+              <S className="w-12 h-4" />
+              <S className="w-full h-24" />
+            </div>
+            <div className="space-y-1.5">
+              <S className="w-16 h-4" />
+              <S className="w-full h-16" />
+            </div>
             <div className="space-y-1.5">
               <S className="w-12 h-4" />
               <div className="flex items-center gap-3">
-                <S className="w-16 h-10" /><S className="w-10 h-4" />
-                <S className="w-16 h-10" /><S className="w-10 h-4" />
+                <S className="w-16 h-10" />
+                <S className="w-10 h-4" />
+                <S className="w-16 h-10" />
+                <S className="w-10 h-4" />
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[0, 1, 2].map((i) => (
                 <div key={i} className="space-y-1.5">
-                  <S className="w-20 h-4" /><S className="w-full h-10" />
+                  <S className="w-20 h-4" />
+                  <S className="w-full h-10" />
                 </div>
               ))}
             </div>
             <div className="flex gap-6 pt-2">
-              <S className="w-20 h-5" /><S className="w-32 h-5" />
+              <S className="w-20 h-5" />
+              <S className="w-32 h-5" />
             </div>
           </div>
           <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
             <S className="w-16 h-9" />
             <div className="flex gap-2">
-              <S className="w-20 h-9" /><S className="w-10 h-9" /><S className="w-20 h-9" />
+              <S className="w-20 h-9" />
+              <S className="w-10 h-9" />
+              <S className="w-20 h-9" />
             </div>
           </div>
         </div>
@@ -123,6 +150,14 @@ export default function TicketFormPage() {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const calendarRef = useRef(null);
 
+  // Sync current user as default executor for new tickets
+  // (user may arrive after component mounts due to async auth check)
+  useEffect(() => {
+    if (!isEdit && user?._id) {
+      setForm((p) => ({ ...p, executor: p.executor || user._id }));
+    }
+  }, [user?._id, isEdit]);
+
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
@@ -132,12 +167,14 @@ export default function TicketFormPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [clientsRes, settingsRes, employeesRes] = await Promise.allSettled([
-          api.get('/clients/dropdown'),
-          api.get('/settings'),
-          api.get('/employees/executors'),
-        ]);
-        if (clientsRes.status === 'fulfilled') setClients(clientsRes.value.data);
+        const [clientsRes, settingsRes, employeesRes] =
+          await Promise.allSettled([
+            api.get('/clients/dropdown'),
+            api.get('/settings'),
+            api.get('/employees/executors'),
+          ]);
+        if (clientsRes.status === 'fulfilled')
+          setClients(clientsRes.value.data);
         if (settingsRes.status === 'fulfilled')
           setSettings(settingsRes.value.data);
         if (employeesRes.status === 'fulfilled')
@@ -166,10 +203,15 @@ export default function TicketFormPage() {
           }
           if (data.client?.name) setClientSearch(data.client.name);
           if (data.orderedBy) setOrderedByInput(data.orderedBy);
-        } else if (settingsRes.value?.data?.executionTypes?.length) {
+        } else {
+          const sTypes = settingsRes.value?.data?.serviceTypes || [];
+          const eTypes = settingsRes.value?.data?.executionTypes || [];
           setForm((p) => ({
             ...p,
-            category: settingsRes.value.data.executionTypes[0],
+            service_type: sTypes.includes('Zlecenie')
+              ? 'Zlecenie'
+              : sTypes[0] || '',
+            category: user?.preferredCategory || eTypes[0] || '',
           }));
         }
       } finally {
@@ -656,21 +698,24 @@ export default function TicketFormPage() {
                 </span>
               </label>
             </div>
+
+            <div>
+              <div>
+                {isEdit && (
+                  <button
+                    onClick={() => setDeleteDialog(true)}
+                    className="btn-danger text-sm"
+                  >
+                    <XMarkIcon className="h-4 w-4" />
+                    Usuń
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Action buttons */}
-          <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-            <div>
-              {isEdit && (
-                <button
-                  onClick={() => setDeleteDialog(true)}
-                  className="btn-danger text-sm"
-                >
-                  <XMarkIcon className="h-4 w-4" />
-                  Usuń
-                </button>
-              )}
-            </div>
+          <div className="px-6 py-4 border-t border-gray-100 flex justify-end items-center gap-2">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => router.push('/tickets')}

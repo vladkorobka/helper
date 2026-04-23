@@ -31,8 +31,11 @@ const DEFAULT_FILTERS = {
 };
 
 function getSaved(key, fallback) {
-  try { return JSON.parse(localStorage.getItem(key)) || fallback; }
-  catch { return fallback; }
+  try {
+    return JSON.parse(localStorage.getItem(key)) || fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 export default function TicketsPage() {
@@ -41,8 +44,12 @@ export default function TicketsPage() {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [filters, setFilters] = useState(() => getSaved(FILTER_KEY, DEFAULT_FILTERS));
-  const [sort, setSort] = useState(() => getSaved(SORT_KEY, { field: 'date', order: 'desc' }));
+  const [filters, setFilters] = useState(() =>
+    getSaved(FILTER_KEY, DEFAULT_FILTERS),
+  );
+  const [sort, setSort] = useState(() =>
+    getSaved(SORT_KEY, { field: 'date', order: 'desc' }),
+  );
   const [month, setMonth] = useState(new Date());
   const [filterOpen, setFilterOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -73,7 +80,8 @@ export default function TicketsPage() {
     if (filters.executor) params.set('executor', filters.executor);
     if (filters.status) params.set('status', filters.status);
 
-    api.get(`/tickets?${params}`, { signal: controller.signal })
+    api
+      .get(`/tickets?${params}`, { signal: controller.signal })
       .then(({ data }) => setTickets(data))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -87,7 +95,8 @@ export default function TicketsPage() {
   // Close calendar on outside click
   useEffect(() => {
     const handler = (e) => {
-      if (calendarRef.current && !calendarRef.current.contains(e.target)) setCalendarOpen(false);
+      if (calendarRef.current && !calendarRef.current.contains(e.target))
+        setCalendarOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -130,21 +139,31 @@ export default function TicketsPage() {
                 className="input pl-9"
                 placeholder="Szukaj po opisie, kliencie, NIP, wykonawcy..."
                 value={filters.search}
-                onChange={(e) => setFilters((p) => ({ ...p, search: e.target.value }))}
+                onChange={(e) =>
+                  setFilters((p) => ({ ...p, search: e.target.value }))
+                }
               />
             </div>
             <button
               onClick={() => setFilterOpen((v) => !v)}
               className={`btn text-sm border px-3 py-1.5 rounded-xl gap-1 transition ${filterOpen ? 'bg-sky-50 border-sky-300 text-sky-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
             >
-              {filterOpen ? <ChevronDoubleUpIcon className="h-4 w-4" /> : <ChevronDoubleDownIcon className="h-4 w-4" />}
+              {filterOpen ? (
+                <ChevronDoubleUpIcon className="h-4 w-4" />
+              ) : (
+                <ChevronDoubleDownIcon className="h-4 w-4" />
+              )}
               Filtry
-              {hasActiveFilters && <span className="w-2 h-2 rounded-full bg-sky-500 ml-0.5" />}
+              {hasActiveFilters && (
+                <span className="w-2 h-2 rounded-full bg-sky-500 ml-0.5" />
+              )}
             </button>
           </div>
 
           {/* Expandable filters */}
-          <div className={`${filterOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'} transition-all duration-300`}>
+          <div
+            className={`${filterOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'} transition-all duration-300`}
+          >
             <div className="flex flex-wrap gap-3 justify-center pt-2 pb-1">
               {/* Month picker */}
               <div ref={calendarRef} className="relative">
@@ -159,7 +178,10 @@ export default function TicketsPage() {
                   <div className="absolute top-10 z-20 bg-white shadow-2xl rounded-xl border border-gray-100 p-2">
                     <DayPicker
                       month={month}
-                      onMonthChange={(m) => { setMonth(m); setCalendarOpen(false); }}
+                      onMonthChange={(m) => {
+                        setMonth(m);
+                        setCalendarOpen(false);
+                      }}
                       showOutsideDays={false}
                       navLayout="around"
                       locale={pl}
@@ -169,27 +191,44 @@ export default function TicketsPage() {
                 )}
               </div>
 
-              <select className="input w-auto px-3 py-1.5 rounded-xl" value={filters.client}
+              {/* <select className="input w-auto px-3 py-1.5 rounded-xl" value={filters.client}
                 onChange={(e) => setFilters((p) => ({ ...p, client: e.target.value }))}>
                 <option value="">Wszyscy klienci</option>
                 {clients.map((c) => <option key={c._id} value={c._id}>{c.code}</option>)}
-              </select>
+              </select> */}
 
-              <select className="input w-auto px-3 py-1.5 rounded-xl" value={filters.executor}
-                onChange={(e) => setFilters((p) => ({ ...p, executor: e.target.value }))}>
+              <select
+                className="input w-auto px-3 py-1.5 rounded-xl"
+                value={filters.executor}
+                onChange={(e) =>
+                  setFilters((p) => ({ ...p, executor: e.target.value }))
+                }
+              >
                 <option value="">Wszyscy wykonawcy</option>
-                {employees.map((e) => <option key={e._id} value={e._id}>{e.name} {e.surname}</option>)}
+                {employees.map((e) => (
+                  <option key={e._id} value={e._id}>
+                    {e.name} {e.surname}
+                  </option>
+                ))}
               </select>
 
-              <select className="input w-auto px-3 py-1.5 rounded-xl" value={filters.status}
-                onChange={(e) => setFilters((p) => ({ ...p, status: e.target.value }))}>
+              <select
+                className="input w-auto px-3 py-1.5 rounded-xl"
+                value={filters.status}
+                onChange={(e) =>
+                  setFilters((p) => ({ ...p, status: e.target.value }))
+                }
+              >
                 <option value="">Wszystkie statusy</option>
                 <option value="waiting">Oczekujące</option>
                 <option value="invoiced">Zafakturowane</option>
                 <option value="sent">Wysłane</option>
               </select>
 
-              <button onClick={resetFilters} className="text-sm text-red-500 hover:text-red-700 flex items-center gap-1">
+              <button
+                onClick={resetFilters}
+                className="text-sm text-red-500 hover:text-red-700 flex items-center gap-1"
+              >
                 <XMarkIcon className="h-4 w-4" /> Resetuj
               </button>
             </div>
@@ -201,18 +240,55 @@ export default function TicketsPage() {
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <SortableHeader field="status" sort={sort} onSort={handleSort} className="w-[90px] text-center">Status</SortableHeader>
-                <SortableHeader field="date" sort={sort} onSort={handleSort} className="w-[110px] text-center">Data</SortableHeader>
-                <SortableHeader field="client" sort={sort} onSort={handleSort} className="w-[130px]">Klient</SortableHeader>
-                <SortableHeader field="description" sort={sort} onSort={handleSort}>Opis</SortableHeader>
-                <SortableHeader field="executor" sort={sort} onSort={handleSort} className="hidden lg:table-cell w-[150px]">Wykonawca</SortableHeader>
+                <SortableHeader
+                  field="status"
+                  sort={sort}
+                  onSort={handleSort}
+                  className="w-[90px] text-center"
+                >
+                  Status
+                </SortableHeader>
+                <SortableHeader
+                  field="date"
+                  sort={sort}
+                  onSort={handleSort}
+                  className="w-[110px] text-center"
+                >
+                  Data
+                </SortableHeader>
+                <SortableHeader
+                  field="client"
+                  sort={sort}
+                  onSort={handleSort}
+                  className="w-[130px]"
+                >
+                  Klient
+                </SortableHeader>
+                <SortableHeader
+                  field="description"
+                  sort={sort}
+                  onSort={handleSort}
+                >
+                  Opis
+                </SortableHeader>
+                <SortableHeader
+                  field="executor"
+                  sort={sort}
+                  onSort={handleSort}
+                  className="hidden lg:table-cell w-[150px]"
+                >
+                  Wykonawca
+                </SortableHeader>
                 <th className="table-header w-[50px]" />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="table-cell text-center py-12 text-gray-400">
+                  <td
+                    colSpan={6}
+                    className="table-cell text-center py-12 text-gray-400"
+                  >
                     <div className="flex justify-center">
                       <div className="w-6 h-6 border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
                     </div>
@@ -220,7 +296,10 @@ export default function TicketsPage() {
                 </tr>
               ) : tickets.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="table-cell text-center py-12 text-gray-400">
+                  <td
+                    colSpan={6}
+                    className="table-cell text-center py-12 text-gray-400"
+                  >
                     Brak zleceń dla wybranych filtrów
                   </td>
                 </tr>
@@ -238,7 +317,9 @@ export default function TicketsPage() {
                     </td>
                     <td className="table-cell text-gray-600 max-w-0 truncate">
                       <div className="truncate">{t.description}</div>
-                      <div className="text-xs text-gray-400 mt-0.5">{formatDuration(t.duration)}</div>
+                      <div className="text-xs text-gray-400 mt-0.5">
+                        {formatDuration(t.duration)}
+                      </div>
                     </td>
                     <td className="hidden lg:table-cell table-cell text-gray-500 whitespace-nowrap">
                       {t.executor?.name} {t.executor?.surname}

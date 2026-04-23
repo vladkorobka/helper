@@ -1,5 +1,6 @@
 'use client';
-import { useState, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import Cropper from 'react-easy-crop';
 import Layout from '../../../components/layout/Layout.jsx';
@@ -31,12 +32,13 @@ async function getCroppedBlob(imageSrc, croppedAreaPixels) {
     0,
     0,
     200,
-    200
+    200,
   );
   return new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', 0.85));
 }
 
 export default function ProfilePage() {
+  const router = useRouter();
   const { user, refreshUser } = useAuth();
   const fileInputRef = useRef(null);
 
@@ -44,11 +46,17 @@ export default function ProfilePage() {
     name: user?.name || '',
     surname: user?.surname || '',
     phone: user?.phone || '',
+    preferredCategory: user?.preferredCategory || '',
     currentPassword: '',
     newPassword: '',
   });
+  const [categories, setCategories] = useState([]);
   const [showPass, setShowPass] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    api.get('/settings').then(({ data }) => setCategories(data.executionTypes || []));
+  }, []);
 
   // Avatar crop state
   const [imageSrc, setImageSrc] = useState(null);
@@ -97,6 +105,7 @@ export default function ProfilePage() {
         name: form.name,
         surname: form.surname,
         phone: form.phone,
+        preferredCategory: form.preferredCategory,
       };
       if (form.newPassword) {
         payload.currentPassword = form.currentPassword;
@@ -106,6 +115,7 @@ export default function ProfilePage() {
       await refreshUser();
       toast.success('Profil zaktualizowany');
       setForm((p) => ({ ...p, currentPassword: '', newPassword: '' }));
+      router.push('/tickets');
     } catch (err) {
       toast.error(getErrorMessage(err));
     } finally {
@@ -120,7 +130,9 @@ export default function ProfilePage() {
 
         {/* Avatar Section */}
         <div className="card p-6 mb-6">
-          <h2 className="text-base font-semibold text-gray-800 mb-4">Zdjęcie profilowe</h2>
+          <h2 className="text-base font-semibold text-gray-800 mb-4">
+            Zdjęcie profilowe
+          </h2>
 
           <div className="flex items-center gap-6">
             <div className="relative flex-shrink-0">
@@ -140,13 +152,23 @@ export default function ProfilePage() {
               >
                 <CameraIcon className="h-3.5 w-3.5" />
               </button>
-              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileSelect}
+              />
             </div>
 
             <div className="text-sm text-gray-500">
-              <p className="font-medium text-gray-800">{user?.name} {user?.surname}</p>
+              <p className="font-medium text-gray-800">
+                {user?.name} {user?.surname}
+              </p>
               <p className="mt-0.5 capitalize">{user?.role}</p>
-              <p className="mt-1 text-xs">Kliknij ikonę aparatu, aby zmienić zdjęcie</p>
+              <p className="mt-1 text-xs">
+                Kliknij ikonę aparatu, aby zmienić zdjęcie
+              </p>
             </div>
           </div>
 
@@ -205,66 +227,114 @@ export default function ProfilePage() {
 
         {/* Profile form */}
         <div className="card p-6">
-          <h2 className="text-base font-semibold text-gray-800 mb-4">Dane osobowe</h2>
+          <h2 className="text-base font-semibold text-gray-800 mb-4">
+            Dane osobowe
+          </h2>
 
           <form onSubmit={handleSave} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Imię *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Imię *
+                </label>
                 <input
                   className="input"
                   value={form.name}
-                  onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, name: e.target.value }))
+                  }
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nazwisko</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nazwisko
+                </label>
                 <input
                   className="input"
                   value={form.surname}
-                  onChange={(e) => setForm((p) => ({ ...p, surname: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, surname: e.target.value }))
+                  }
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Telefon
+              </label>
               <input
                 className="input"
                 type="tel"
                 value={form.phone}
-                onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, phone: e.target.value }))
+                }
                 placeholder="+48 000 000 000"
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ulubiona kategoria zlecenia
+              </label>
+              <select
+                className="input"
+                value={form.preferredCategory}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, preferredCategory: e.target.value }))
+                }
+              >
+                <option value="">— brak preferencji —</option>
+                {categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-400 mt-1">
+                Będzie automatycznie wybrana przy tworzeniu nowego zlecenia
+              </p>
+            </div>
+
             <hr className="border-gray-100" />
 
-            <h3 className="text-sm font-semibold text-gray-700">Zmiana hasła</h3>
-            <p className="text-xs text-gray-400 -mt-2">Wypełnij tylko jeśli chcesz zmienić hasło</p>
+            <h3 className="text-sm font-semibold text-gray-700">
+              Zmiana hasła
+            </h3>
+            <p className="text-xs text-gray-400 -mt-2">
+              Wypełnij tylko jeśli chcesz zmienić hasło
+            </p>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Aktualne hasło</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Aktualne hasło
+              </label>
               <input
                 className="input"
                 type="password"
                 value={form.currentPassword}
-                onChange={(e) => setForm((p) => ({ ...p, currentPassword: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, currentPassword: e.target.value }))
+                }
                 autoComplete="current-password"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nowe hasło <span className="text-xs text-gray-400">(min. 8, wielka litera, cyfra)</span>
+                Nowe hasło{' '}
+                <span className="text-xs text-gray-400">
+                  (min. 8, wielka litera, cyfra)
+                </span>
               </label>
               <div className="relative">
                 <input
                   className="input pr-10"
                   type={showPass ? 'text' : 'password'}
                   value={form.newPassword}
-                  onChange={(e) => setForm((p) => ({ ...p, newPassword: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, newPassword: e.target.value }))
+                  }
                   autoComplete="new-password"
                 />
                 <button
@@ -273,7 +343,11 @@ export default function ProfilePage() {
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
                   tabIndex={-1}
                 >
-                  {showPass ? <EyeSlashIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                  {showPass ? (
+                    <EyeSlashIcon className="h-4 w-4" />
+                  ) : (
+                    <EyeIcon className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>

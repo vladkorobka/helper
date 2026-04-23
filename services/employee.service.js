@@ -58,6 +58,7 @@ export const employeeService = {
     if (data.name !== undefined) employee.name = data.name;
     if (data.surname !== undefined) employee.surname = data.surname;
     if (data.phone !== undefined) employee.phone = data.phone;
+    if (data.preferredCategory !== undefined) employee.preferredCategory = data.preferredCategory;
 
     if (data.newPassword) {
       if (!data.currentPassword) {
