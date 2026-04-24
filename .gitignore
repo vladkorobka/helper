@@ -40,6 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# superpowers brainstorm sessions
+.superpowers/
+
 # project-specific
 public/uploads/avatars/*.webp
 public/uploads/avatars/*.jpg
