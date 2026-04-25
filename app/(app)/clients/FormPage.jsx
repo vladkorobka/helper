@@ -6,6 +6,7 @@ import Layout from '../../../components/layout/Layout.jsx';
 import api from '../../../lib/api.js';
 import { getErrorMessage } from '../../../lib/utils.js';
 import { PlusIcon, XMarkIcon, CheckIcon, ArrowUturnLeftIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import CustomSelect from '../../../components/ui/CustomSelect.jsx';
 
 const INITIAL = {
   code: '', nip: '', name: '', email: '', phone: '', address: '', notes: '',
@@ -271,18 +272,16 @@ export default function ClientFormPage() {
             </div>
             {form.programs.map((prog, i) => (
               <div key={i} className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 bg-gray-50 rounded-xl">
-                <select
-                  className="input"
+                <CustomSelect
                   value={prog.program}
-                  onChange={(e) => setForm((p) => {
+                  onChange={(val) => setForm((p) => {
                     const arr = [...p.programs];
-                    arr[i] = { ...arr[i], program: e.target.value };
+                    arr[i] = { ...arr[i], program: val };
                     return { ...p, programs: arr };
                   })}
-                >
-                  <option value="">Wybierz program</option>
-                  {programs.map((p) => <option key={p._id} value={p._id}>{p.code} — {p.name}</option>)}
-                </select>
+                  options={[{ value: '', label: 'Wybierz program' }, ...programs.map((p) => ({ value: p._id, label: `${p.code} — ${p.name}` }))]}
+                  placeholder="Wybierz program"
+                />
                 <input
                   className="input"
                   placeholder="Wersja"
@@ -291,20 +290,16 @@ export default function ClientFormPage() {
                     const arr = [...p.programs]; arr[i] = { ...arr[i], version: e.target.value }; return { ...p, programs: arr };
                   })}
                 />
-                <select
-                  className="input"
+                <CustomSelect
                   value={prog.employee}
-                  onChange={(e) => setForm((p) => {
-                    const arr = [...p.programs]; arr[i] = { ...arr[i], employee: e.target.value }; return { ...p, programs: arr };
+                  onChange={(val) => setForm((p) => {
+                    const arr = [...p.programs];
+                    arr[i] = { ...arr[i], employee: val };
+                    return { ...p, programs: arr };
                   })}
-                >
-                  <option value="">— Opiekun —</option>
-                  {employees.map((emp) => (
-                    <option key={emp._id} value={`${emp.name} ${emp.surname}`.trim()}>
-                      {emp.name} {emp.surname}
-                    </option>
-                  ))}
-                </select>
+                  options={[{ value: '', label: '— Opiekun —' }, ...employees.map((emp) => ({ value: `${emp.name} ${emp.surname}`.trim(), label: `${emp.name} ${emp.surname}` }))]}
+                  placeholder="— Opiekun —"
+                />
                 <div className="flex gap-2">
                   <input
                     className="input flex-1"

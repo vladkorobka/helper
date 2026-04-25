@@ -18,6 +18,7 @@ import {
   AtSymbolIcon,
   ArrowUturnLeftIcon,
 } from '@heroicons/react/24/outline';
+import CustomSelect from '../../../components/ui/CustomSelect.jsx';
 
 const INITIAL = {
   date: moment().format('YYYY-MM-DD'),
@@ -415,18 +416,12 @@ export default function TicketFormPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Wykonawca
                 </label>
-                <select
-                  name="executor"
+                <CustomSelect
                   value={form.executor}
-                  onChange={handleChange}
-                  className="input"
-                >
-                  {employees.map((e) => (
-                    <option key={e._id} value={e._id}>
-                      {e.name} {e.surname}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setForm((p) => ({ ...p, executor: val }))}
+                  options={employees.map((e) => ({ value: e._id, label: `${e.name} ${e.surname}` }))}
+                  placeholder="Wybierz wykonawcę..."
+                />
               </div>
             </div>
 
@@ -609,58 +604,34 @@ export default function TicketFormPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Rodzaj usługi *
                 </label>
-                <select
-                  name="service_type"
+                <CustomSelect
                   value={form.service_type}
-                  onChange={handleChange}
-                  className="input"
-                >
-                  <option value="">Wybierz</option>
-                  {settings.serviceTypes.map((t) => (
-                    <option key={t} value={t} checked={t === 'Zlecenie'}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setForm((p) => ({ ...p, service_type: val }))}
+                  options={[{ value: '', label: 'Wybierz' }, ...settings.serviceTypes.map((t) => ({ value: t, label: t }))]}
+                  placeholder="Wybierz..."
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Cena
                 </label>
-                <select
-                  name="priceType"
+                <CustomSelect
                   value={form.priceType}
-                  onChange={handleChange}
-                  className="input"
-                >
-                  {settings.priceTypes.map((t) => (
-                    <option
-                      key={t}
-                      value={t}
-                      checked={t === 250 ? true : false}
-                    >
-                      {t} zł/h
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setForm((p) => ({ ...p, priceType: val }))}
+                  options={settings.priceTypes.map((t) => ({ value: t, label: `${t} zł/h` }))}
+                  placeholder="Wybierz cenę..."
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Kategoria *
                 </label>
-                <select
-                  name="category"
+                <CustomSelect
                   value={form.category}
-                  onChange={handleChange}
-                  className="input"
-                >
-                  <option value="">Wybierz</option>
-                  {settings.executionTypes.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setForm((p) => ({ ...p, category: val }))}
+                  options={[{ value: '', label: 'Wybierz' }, ...settings.executionTypes.map((t) => ({ value: t, label: t }))]}
+                  placeholder="Wybierz kategorię..."
+                />
               </div>
             </div>
 

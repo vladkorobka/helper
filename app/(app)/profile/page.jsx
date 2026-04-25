@@ -15,6 +15,7 @@ import {
   CheckIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
+import CustomSelect from '../../../components/ui/CustomSelect.jsx';
 
 // Helper: get cropped canvas from crop area
 async function getCroppedBlob(imageSrc, croppedAreaPixels) {
@@ -279,18 +280,12 @@ export default function ProfilePage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Ulubiona kategoria zlecenia
               </label>
-              <select
-                className="input"
+              <CustomSelect
                 value={form.preferredCategory}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, preferredCategory: e.target.value }))
-                }
-              >
-                <option value="">— brak preferencji —</option>
-                {categories.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
+                onChange={(val) => setForm((p) => ({ ...p, preferredCategory: val }))}
+                options={[{ value: '', label: '— brak preferencji —' }, ...categories.map((c) => ({ value: c, label: c }))]}
+                placeholder="— brak preferencji —"
+              />
               <p className="text-xs text-gray-400 mt-1">
                 Będzie automatycznie wybrana przy tworzeniu nowego zlecenia
               </p>
