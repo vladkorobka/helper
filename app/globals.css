@@ -220,7 +220,7 @@
 
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: #e5e7eb transparent;
+    scrollbar-color: rgba(203, 213, 225, 0.5) transparent;
   }
 
   /* === GLASSMORPHISM TOKENS === */
