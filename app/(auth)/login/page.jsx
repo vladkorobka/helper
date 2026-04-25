@@ -29,7 +29,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm">
+    <div className="glass-auth-card p-8 w-full max-w-sm">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800 tracking-wide">helper</h1>
         <p className="text-sm text-gray-500 mt-1">System zarządzania zleceniami</p>

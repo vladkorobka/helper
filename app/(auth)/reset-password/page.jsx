@@ -33,7 +33,7 @@ function ResetPasswordContent() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm">
+    <div className="glass-auth-card p-8 w-full max-w-sm">
       {done ? (
         <div className="text-center">
           <CheckCircleIcon className="h-14 w-14 text-green-500 mx-auto mb-4" />

@@ -69,7 +69,7 @@ function AcceptInviteContent() {
 
   if (error) {
     return (
-      <div className="bg-white rounded-2xl shadow p-8 max-w-sm text-center">
+      <div className="glass-auth-card p-8 max-w-sm text-center">
         <p className="text-red-600 font-medium">{error}</p>
         <p className="text-sm text-gray-500 mt-2">Skontaktuj się z administratorem.</p>
       </div>
@@ -77,7 +77,7 @@ function AcceptInviteContent() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="glass-auth-card p-8 w-full max-w-md">
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Aktywacja konta</h1>
         <p className="text-sm text-gray-500 mt-1">
