@@ -274,6 +274,17 @@
     box-shadow: 0 8px 36px rgba(59, 130, 246, 0.09);
   }
 
+  /* === REACT DAY PICKER GLASS THEME === */
+  .rdp-glass-wrap {
+    background: rgba(255, 255, 255, 0.90);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(255, 255, 255, 0.94);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.13);
+    padding: 12px;
+  }
+
   .glass-nav {
     background: rgba(255, 255, 255, 0.58);
     backdrop-filter: blur(28px);
@@ -283,4 +294,72 @@
       0 2px 12px rgba(59, 130, 246, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.90);
   }
+}
+
+/* React Day Picker — glass theme overrides */
+.rdp-root {
+  --rdp-accent-color: #2563eb;
+  --rdp-accent-background-color: rgba(219, 234, 254, 0.85);
+  --rdp-day_button-border-radius: 8px;
+  --rdp-day-height: 36px;
+  --rdp-day-width: 36px;
+  --rdp-day_button-height: 34px;
+  --rdp-day_button-width: 34px;
+  --rdp-selected-border: none;
+  --rdp-today-color: #2563eb;
+  --rdp-nav_button-height: 2rem;
+  --rdp-nav_button-width: 2rem;
+  font-size: 0.875rem;
+}
+
+.rdp-caption_label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.rdp-weekday {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 1;
+}
+
+.rdp-chevron {
+  fill: #64748b;
+}
+
+.rdp-button_previous:hover .rdp-chevron,
+.rdp-button_next:hover .rdp-chevron {
+  fill: #1e293b;
+}
+
+.rdp-button_previous,
+.rdp-button_next {
+  border-radius: 8px;
+  transition: background-color 150ms;
+}
+
+.rdp-button_previous:hover,
+.rdp-button_next:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.rdp-day_button:hover:not(:disabled) {
+  background-color: rgba(219, 234, 254, 0.75);
+  color: #1d4ed8;
+}
+
+.rdp-selected .rdp-day_button {
+  background-color: #2563eb;
+  color: #fff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.30);
+}
+
+.rdp-selected .rdp-day_button:hover {
+  background-color: #1d4ed8;
+  color: #fff;
 }

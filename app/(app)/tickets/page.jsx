@@ -1,26 +1,23 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { DayPicker } from 'react-day-picker';
-import { pl } from 'react-day-picker/locale';
-import 'react-day-picker/dist/style.css';
 import moment from 'moment';
 import Layout from '../../../components/layout/Layout.jsx';
 import SortableHeader from '../../../components/shared/SortableHeader.jsx';
 import StatusBadge from '../../../components/shared/StatusBadge.jsx';
+import MonthYearPicker from '../../../components/shared/MonthYearPicker.jsx';
+import ExportCsvModal from '../../../components/shared/ExportCsvModal.jsx';
 import api from '../../../lib/api.js';
 import { formatDateDisplay, formatDuration } from '../../../lib/utils.js';
 import {
   PlusIcon,
   MagnifyingGlassIcon,
-  CalendarDaysIcon,
   XMarkIcon,
   ChevronDoubleDownIcon,
   ChevronDoubleUpIcon,
   EllipsisHorizontalIcon,
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
-import ExportCsvModal from '../../../components/shared/ExportCsvModal.jsx';
 
 const SORT_KEY = 'helper_tickets_sort';
 const FILTER_KEY = 'helper_tickets_filters';
@@ -54,9 +51,7 @@ export default function TicketsPage() {
   );
   const [month, setMonth] = useState(new Date());
   const [filterOpen, setFilterOpen] = useState(false);
-  const [calendarOpen, setCalendarOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
-  const calendarRef = useRef(null);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -100,15 +95,6 @@ export default function TicketsPage() {
     return () => controller.abort();
   }, [filters, sort, month]);
 
-  // Close calendar on outside click
-  useEffect(() => {
-    const handler = (e) => {
-      if (calendarRef.current && !calendarRef.current.contains(e.target))
-        setCalendarOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
 
   const handleSort = (field) => {
     setSort((prev) => ({
@@ -181,30 +167,7 @@ export default function TicketsPage() {
           >
             <div className="flex flex-wrap gap-3 justify-center pt-2 pb-1">
               {/* Month picker */}
-              <div ref={calendarRef} className="relative">
-                <button
-                  onClick={() => setCalendarOpen((v) => !v)}
-                  className="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-200 rounded-xl hover:bg-gray-50 transition text-gray-700"
-                >
-                  <CalendarDaysIcon className="h-4 w-4 text-gray-400" />
-                  {moment(month).format('MM/YYYY')}
-                </button>
-                {calendarOpen && (
-                  <div className="absolute top-10 z-20 bg-white shadow-2xl rounded-xl border border-gray-100 p-2">
-                    <DayPicker
-                      month={month}
-                      onMonthChange={(m) => {
-                        setMonth(m);
-                        setCalendarOpen(false);
-                      }}
-                      showOutsideDays={false}
-                      navLayout="around"
-                      locale={pl}
-                      animate
-                    />
-                  </div>
-                )}
-              </div>
+              <MonthYearPicker value={month} onChange={setMonth} />
 
               {/* <select className="input w-auto px-3 py-1.5 rounded-xl" value={filters.client}
                 onChange={(e) => setFilters((p) => ({ ...p, client: e.target.value }))}>

@@ -119,6 +119,7 @@ function TicketFormSkeleton() {
 }
 
 export default function TicketFormPage() {
+  const DEFAULT_PRICE = 250;
   const { id } = useParams();
   const { user } = useAuth();
   const router = useRouter();
@@ -206,9 +207,13 @@ export default function TicketFormPage() {
           if (data.orderedBy) setOrderedByInput(data.orderedBy);
         } else {
           const sTypes = settingsRes.value?.data?.serviceTypes || [];
+          const pTypes = settingsRes.value?.data?.priceTypes || [];
           const eTypes = settingsRes.value?.data?.executionTypes || [];
           setForm((p) => ({
             ...p,
+            priceType: pTypes.includes(DEFAULT_PRICE)
+              ? DEFAULT_PRICE
+              : pTypes[0] || 0,
             service_type: sTypes.includes('Zlecenie')
               ? 'Zlecenie'
               : sTypes[0] || '',
@@ -389,7 +394,7 @@ export default function TicketFormPage() {
                     <CalendarDaysIcon className="h-4 w-4 text-gray-400" />
                   </button>
                   {calendarOpen && (
-                    <div className="absolute z-20 bg-white shadow-2xl rounded-xl border border-gray-100 p-2">
+                    <div className="rdp-glass-wrap absolute z-20">
                       <DayPicker
                         mode="single"
                         selected={new Date(form.date)}
@@ -419,7 +424,10 @@ export default function TicketFormPage() {
                 <CustomSelect
                   value={form.executor}
                   onChange={(val) => setForm((p) => ({ ...p, executor: val }))}
-                  options={employees.map((e) => ({ value: e._id, label: `${e.name} ${e.surname}` }))}
+                  options={employees.map((e) => ({
+                    value: e._id,
+                    label: `${e.name} ${e.surname}`,
+                  }))}
                   placeholder="Wybierz wykonawcę..."
                 />
               </div>
@@ -606,8 +614,15 @@ export default function TicketFormPage() {
                 </label>
                 <CustomSelect
                   value={form.service_type}
-                  onChange={(val) => setForm((p) => ({ ...p, service_type: val }))}
-                  options={[{ value: '', label: 'Wybierz' }, ...settings.serviceTypes.map((t) => ({ value: t, label: t }))]}
+                  onChange={(val) =>
+                    setForm((p) => ({ ...p, service_type: val }))
+                  }
+                  options={[
+                    ...settings.serviceTypes.map((t) => ({
+                      value: t,
+                      label: t,
+                    })),
+                  ]}
                   placeholder="Wybierz..."
                 />
               </div>
@@ -618,7 +633,12 @@ export default function TicketFormPage() {
                 <CustomSelect
                   value={form.priceType}
                   onChange={(val) => setForm((p) => ({ ...p, priceType: val }))}
-                  options={settings.priceTypes.map((t) => ({ value: t, label: `${t} zł/h` }))}
+                  options={[
+                    ...settings.priceTypes.map((t) => ({
+                      value: t,
+                      label: `${t} zł/h`,
+                    })),
+                  ]}
                   placeholder="Wybierz cenę..."
                 />
               </div>
@@ -629,7 +649,12 @@ export default function TicketFormPage() {
                 <CustomSelect
                   value={form.category}
                   onChange={(val) => setForm((p) => ({ ...p, category: val }))}
-                  options={[{ value: '', label: 'Wybierz' }, ...settings.executionTypes.map((t) => ({ value: t, label: t }))]}
+                  options={[
+                    ...settings.executionTypes.map((t) => ({
+                      value: t,
+                      label: t,
+                    })),
+                  ]}
                   placeholder="Wybierz kategorię..."
                 />
               </div>
