@@ -46,6 +46,41 @@ export const ticketRepository = {
     return Ticket.aggregate(pipeline);
   },
 
+  async findForExport(match) {
+    const pipeline = [
+      {
+        $lookup: {
+          from: 'clients',
+          localField: 'client',
+          foreignField: '_id',
+          as: 'client',
+        },
+      },
+      { $unwind: { path: '$client', preserveNullAndEmptyArrays: false } },
+      {
+        $lookup: {
+          from: 'employees',
+          localField: 'executor',
+          foreignField: '_id',
+          as: 'executor',
+        },
+      },
+      { $unwind: { path: '$executor', preserveNullAndEmptyArrays: true } },
+      { $match: match },
+      { $sort: { date: 1 } },
+      {
+        $project: {
+          date: 1, duration: 1, orderedBy: 1,
+          description: 1, note: 1, service_type: 1,
+          priceType: 1, category: 1, commute: 1, invoiced: 1,
+          'client.name': 1,
+          'executor.name': 1, 'executor.surname': 1,
+        },
+      },
+    ];
+    return Ticket.aggregate(pipeline);
+  },
+
   findById(id) {
     return Ticket.findById(id).populate(POPULATE_OPTIONS);
   },

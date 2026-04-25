@@ -138,6 +138,47 @@ export const ticketService = {
     return ticket;
   },
 
+  async exportCsv(date) {
+    await connectDB();
+    const [mm, yyyy] = date.split('-');
+    const start = new Date(parseInt(yyyy), parseInt(mm) - 1, 1);
+    const end = new Date(parseInt(yyyy), parseInt(mm), 1);
+    const tickets = await ticketRepository.findForExport({ date: { $gte: start, $lt: end } });
+
+    const esc = (v) => {
+      const s = String(v ?? '').replace(/\r\n|\r|\n/g, ' ');
+      return s.includes(';') || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+
+    const fmt = (d) => {
+      const dt = new Date(d);
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, '0');
+      const day = String(dt.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
+    const header = 'Klient;Data;Czas (w minutach);Kto zlecił;Kto zrobił;Opis;Uwagi;Cena;Kategoria;Dojazd;Typ usługi;Wystawiona faktura';
+    const rows = tickets.map((t) =>
+      [
+        t.client?.name,
+        fmt(t.date),
+        t.duration,
+        t.orderedBy,
+        [t.executor?.name, t.executor?.surname].filter(Boolean).join(' '),
+        t.description,
+        t.note,
+        t.priceType,
+        t.category,
+        t.commute ? 'Tak' : 'Nie',
+        t.service_type,
+        t.invoiced ? 'Tak' : 'Nie',
+      ].map(esc).join(';')
+    );
+
+    return '﻿' + [header, ...rows].join('\n');
+  },
+
   async delete(id) {
     await connectDB();
     const ticket = await ticketRepository.deleteById(id);

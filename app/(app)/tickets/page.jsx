@@ -18,7 +18,9 @@ import {
   ChevronDoubleDownIcon,
   ChevronDoubleUpIcon,
   EllipsisHorizontalIcon,
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
+import ExportCsvModal from '../../../components/shared/ExportCsvModal.jsx';
 
 const SORT_KEY = 'helper_tickets_sort';
 const FILTER_KEY = 'helper_tickets_filters';
@@ -53,6 +55,7 @@ export default function TicketsPage() {
   const [month, setMonth] = useState(new Date());
   const [filterOpen, setFilterOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const calendarRef = useRef(null);
 
   // Load dropdowns once
@@ -123,11 +126,18 @@ export default function TicketsPage() {
     <Layout>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Zlecenia</h1>
-        <Link href="/tickets/new" className="btn-success">
-          <PlusIcon className="h-4 w-4" />
-          Nowe zlecenie
-        </Link>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setExportOpen(true)} className="btn-ghost">
+            <ArrowDownTrayIcon className="h-4 w-4" />
+            Eksport do CSV
+          </button>
+          <Link href="/tickets/new" className="btn-success">
+            <PlusIcon className="h-4 w-4" />
+            Nowe zlecenie
+          </Link>
+        </div>
       </div>
+      {exportOpen && <ExportCsvModal onClose={() => setExportOpen(false)} />}
 
       <div className="card">
         {/* Search + filter toggle */}
