@@ -139,9 +139,9 @@ export default function TicketsPage() {
       </div>
       {exportOpen && <ExportCsvModal onClose={() => setExportOpen(false)} />}
 
-      <div className="card">
+      <div className="card flex flex-col h-[calc(100vh-180px)]">
         {/* Search + filter toggle */}
-        <div className="p-4 border-b border-gray-100">
+        <div className="flex-none p-4 border-b border-gray-100/60">
           <div className="flex items-center gap-3 max-w-md mx-auto mb-3">
             <div className="relative flex-1">
               <MagnifyingGlassIcon className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -246,9 +246,10 @@ export default function TicketsPage() {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
+        <div className="flex-1 overflow-hidden">
+        <div className="overflow-auto h-full custom-scrollbar">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
+            <thead className="sticky top-0 z-10 bg-slate-50 border-b border-gray-100">
               <tr>
                 <SortableHeader
                   field="status"
@@ -327,9 +328,9 @@ export default function TicketsPage() {
                     </td>
                     <td className="table-cell text-gray-600 max-w-0 truncate">
                       <div className="truncate">{t.description}</div>
-                      <div className="text-xs text-gray-400 mt-0.5">
+                      {/* <div className="text-xs text-gray-400 mt-0.5">
                         {formatDuration(t.duration)}
-                      </div>
+                      </div> */}
                     </td>
                     <td className="hidden lg:table-cell table-cell text-gray-500 whitespace-nowrap">
                       {t.executor?.name} {t.executor?.surname}
@@ -348,12 +349,7 @@ export default function TicketsPage() {
             </tbody>
           </table>
         </div>
-
-        {tickets.length > 0 && (
-          <div className="px-4 py-2 border-t border-gray-100 text-xs text-gray-400">
-            Łącznie: {tickets.length} zleceń
-          </div>
-        )}
+        </div>
       </div>
     </Layout>
   );

@@ -50,10 +50,11 @@ export default function ProgramsPage() {
         )}
       </div>
 
-      <div className="card">
-        <div className="overflow-x-auto">
+      <div className="card flex flex-col h-[calc(100vh-180px)]">
+        <div className="flex-1 overflow-hidden">
+        <div className="overflow-auto h-full custom-scrollbar">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
+            <thead className="sticky top-0 z-10 bg-slate-50 border-b border-gray-100">
               <tr>
                 <th className="table-header w-[100px]">Kod</th>
                 <th className="table-header">Nazwa</th>
@@ -101,6 +102,7 @@ export default function ProgramsPage() {
               )}
             </tbody>
           </table>
+        </div>
         </div>
       </div>
 

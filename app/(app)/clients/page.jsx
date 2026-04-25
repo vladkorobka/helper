@@ -59,31 +59,27 @@ export default function ClientsPage() {
 
   return (
     <Layout>
-      <div className="card">
-        <div className="flex justify-between">
-          <div className="p-4 border-b border-gray-100">
-            <div className="relative max-w-sm">
-              <MagnifyingGlassIcon className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                className="input pl-9"
-                placeholder="Szukaj po nazwie, kodzie, NIP..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
+      <div className="card flex flex-col h-[calc(100vh-120px)]">
+        <div className="flex-none flex justify-between items-center p-4 border-b border-gray-100/60">
+          <div className="relative max-w-sm">
+            <MagnifyingGlassIcon className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              className="input pl-9"
+              placeholder="Szukaj po nazwie, kodzie, NIP..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
-
-          <div className="flex justify-between items-center mr-6">
-            <Link href="/clients/new" className="btn-success">
-              <PlusIcon className="h-4 w-4" />
-              Nowy klient
-            </Link>
-          </div>
+          <Link href="/clients/new" className="btn-success">
+            <PlusIcon className="h-4 w-4" />
+            Nowy klient
+          </Link>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="flex-1 overflow-hidden">
+        <div className="overflow-auto h-full custom-scrollbar">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
+            <thead className="sticky top-0 z-10 bg-slate-50 border-b border-gray-100">
               <tr>
                 <th className="table-header">Kod</th>
                 <th className="table-header">Nazwa</th>
@@ -162,6 +158,7 @@ export default function ClientsPage() {
               )}
             </tbody>
           </table>
+        </div>
         </div>
       </div>
 
