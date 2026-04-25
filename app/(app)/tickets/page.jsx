@@ -58,6 +58,11 @@ export default function TicketsPage() {
   const [exportOpen, setExportOpen] = useState(false);
   const calendarRef = useRef(null);
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
   // Load dropdowns once
   useEffect(() => {
     Promise.all([

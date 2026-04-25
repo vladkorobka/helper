@@ -19,6 +19,11 @@ export default function ProgramsPage() {
   const canDelete = user?.role === 'superadmin';
 
   useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
+  useEffect(() => {
     api.get('/programs')
       .then(({ data }) => setPrograms(data))
       .catch((err) => toast.error(getErrorMessage(err)))

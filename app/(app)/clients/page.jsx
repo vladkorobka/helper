@@ -20,6 +20,11 @@ export default function ClientsPage() {
   const [deleteId, setDeleteId] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
   const fetchClients = async (s = '') => {
     setLoading(true);
     try {
