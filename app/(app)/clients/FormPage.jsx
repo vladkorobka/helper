@@ -93,8 +93,7 @@ export default function ClientFormPage() {
         ...p,
         nip: data.nip || p.nip,
         name: data.nazwa || p.name,
-        // Auto-generate code from first word(s) of company name, max 20 chars
-        code: p.code || data.nazwa?.split(' ').slice(0, 2).join(' ').slice(0, 20) || p.code,
+        code: (data.nazwa || '').slice(0, 40),
         address: data.adres || p.address,
       }));
       toast.success('Dane pobrane z GUS');
@@ -271,7 +270,7 @@ export default function ClientFormPage() {
               </button>
             </div>
             {form.programs.map((prog, i) => (
-              <div key={i} className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 bg-gray-50 rounded-xl">
+              <div key={i} className="grid grid-cols-4 gap-2 p-3 bg-gray-50/60 rounded-xl items-center">
                 <CustomSelect
                   value={prog.program}
                   onChange={(val) => setForm((p) => {

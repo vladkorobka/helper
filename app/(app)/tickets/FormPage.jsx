@@ -1,9 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { DayPicker } from 'react-day-picker';
-import { pl } from 'react-day-picker/locale';
-import 'react-day-picker/dist/style.css';
 import moment from 'moment';
 import { toast } from 'sonner';
 import Layout from '../../../components/layout/Layout.jsx';
@@ -12,13 +9,13 @@ import { useAuth } from '../../../context/AuthContext.jsx';
 import api from '../../../lib/api.js';
 import { getErrorMessage } from '../../../lib/utils.js';
 import {
-  CalendarDaysIcon,
   CheckIcon,
   XMarkIcon,
   AtSymbolIcon,
   ArrowUturnLeftIcon,
 } from '@heroicons/react/24/outline';
 import CustomSelect from '../../../components/ui/CustomSelect.jsx';
+import GlassDatePicker from '../../../components/shared/GlassDatePicker.jsx';
 
 const INITIAL = {
   date: moment().format('YYYY-MM-DD'),
@@ -32,6 +29,7 @@ const INITIAL = {
   priceType: 0,
   category: '',
   commute: false,
+  needsInvoice: false,
   reportSent: false,
   invoiced: false,
   executor: '',
@@ -148,10 +146,6 @@ export default function TicketFormPage() {
   const [orderedByDropdown, setOrderedByDropdown] = useState(false);
   const orderedByRef = useRef(null);
 
-  // Calendar
-  const [calendarOpen, setCalendarOpen] = useState(false);
-  const calendarRef = useRef(null);
-
   // Sync current user as default executor for new tickets
   // (user may arrive after component mounts due to async auth check)
   useEffect(() => {
@@ -195,6 +189,7 @@ export default function TicketFormPage() {
             priceType: data.priceType || 0,
             category: data.category || '',
             commute: data.commute || false,
+            needsInvoice: data.needsInvoice || false,
             reportSent: data.reportSent || false,
             invoiced: data.invoiced || false,
             executor: data.executor?._id || data.executor || user?._id || '',
@@ -248,8 +243,6 @@ export default function TicketFormPage() {
     const h = (e) => {
       if (clientRef.current && !clientRef.current.contains(e.target))
         setClientDropdown(false);
-      if (calendarRef.current && !calendarRef.current.contains(e.target))
-        setCalendarOpen(false);
       if (orderedByRef.current && !orderedByRef.current.contains(e.target))
         setOrderedByDropdown(false);
     };
@@ -384,36 +377,10 @@ export default function TicketFormPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Data *
                 </label>
-                <div ref={calendarRef} className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setCalendarOpen((v) => !v)}
-                    className="input flex items-center justify-between w-full"
-                  >
-                    <span>{moment(form.date).format('DD.MM.YYYY')}</span>
-                    <CalendarDaysIcon className="h-4 w-4 text-gray-400" />
-                  </button>
-                  {calendarOpen && (
-                    <div className="rdp-glass-wrap absolute z-20">
-                      <DayPicker
-                        mode="single"
-                        selected={new Date(form.date)}
-                        onSelect={(d) => {
-                          if (d) {
-                            setForm((p) => ({
-                              ...p,
-                              date: moment(d).format('YYYY-MM-DD'),
-                            }));
-                            setCalendarOpen(false);
-                          }
-                        }}
-                        locale={pl}
-                        navLayout="around"
-                        animate
-                      />
-                    </div>
-                  )}
-                </div>
+                <GlassDatePicker
+                  value={form.date}
+                  onChange={(val) => setForm((p) => ({ ...p, date: val }))}
+                />
               </div>
 
               {/* Executor */}
@@ -672,27 +639,39 @@ export default function TicketFormPage() {
                 />
                 <span className="text-sm text-gray-700">Dojazd</span>
               </label>
-              {/* invoiced is irreversible — read-only once true */}
-              <label
-                className={`flex items-center gap-2 ${form.invoiced ? 'opacity-70' : 'cursor-pointer'}`}
-              >
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  name="invoiced"
-                  checked={form.invoiced}
-                  onChange={form.invoiced ? undefined : handleChange}
-                  disabled={form.invoiced}
-                  className="w-4 h-4 text-green-500 rounded border-gray-300"
+                  name="needsInvoice"
+                  checked={form.needsInvoice}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-violet-500 rounded border-gray-300"
                 />
-                <span className="text-sm text-gray-700">
-                  Zafakturowane
-                  {form.invoiced && (
-                    <span className="ml-1 text-xs text-gray-400">
-                      (nieodwracalne)
-                    </span>
-                  )}
-                </span>
+                <span className="text-sm text-gray-700">Wymaga faktury</span>
               </label>
+              {/* invoiced is irreversible — read-only once true */}
+              {form.needsInvoice && (
+                <label
+                  className={`flex items-center gap-2 ${form.invoiced ? 'opacity-70' : 'cursor-pointer'}`}
+                >
+                  <input
+                    type="checkbox"
+                    name="invoiced"
+                    checked={form.invoiced}
+                    onChange={form.invoiced ? undefined : handleChange}
+                    disabled={form.invoiced}
+                    className="w-4 h-4 text-green-500 rounded border-gray-300"
+                  />
+                  <span className="text-sm text-gray-700">
+                    Zafakturowane
+                    {form.invoiced && (
+                      <span className="ml-1 text-xs text-gray-400">
+                        (nieodwracalne)
+                      </span>
+                    )}
+                  </span>
+                </label>
+              )}
             </div>
 
             <div>

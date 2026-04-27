@@ -81,11 +81,6 @@ export const ticketService = {
     const reportSent = data.reportSent || false;
     const invoiced = data.invoiced || false;
 
-    // Can't invoice without report
-    if (invoiced && !reportSent) {
-      throw Object.assign(new Error('Nie można zafakturować bez wysłania raportu'), { statusCode: 400 });
-    }
-
     const ticket = await ticketRepository.create({
       ...data,
       reportSent,
@@ -114,10 +109,6 @@ export const ticketService = {
     // Enforce irreversibility of flags
     const reportSent = existing.reportSent || data.reportSent || false;
     const invoiced = existing.invoiced || data.invoiced || false;
-
-    if (invoiced && !reportSent) {
-      throw Object.assign(new Error('Nie można zafakturować bez wysłania raportu'), { statusCode: 400 });
-    }
 
     const payload = {
       ...data,

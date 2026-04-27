@@ -10,6 +10,7 @@ export default function CustomSelect({
   disabled = false,
 }) {
   const [open, setOpen] = useState(false);
+  const [dropUp, setDropUp] = useState(false);
   const ref = useRef(null);
 
   const selected = options.find((o) => String(o.value) === String(value));
@@ -22,15 +23,24 @@ export default function CustomSelect({
     return () => document.removeEventListener('mousedown', onOutside);
   }, []);
 
+  const handleOpen = () => {
+    if (disabled) return;
+    if (!open && ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      setDropUp(window.innerHeight - rect.bottom < 220);
+    }
+    setOpen((v) => !v);
+  };
+
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative min-w-0">
       <button
         type="button"
         disabled={disabled}
-        onClick={() => !disabled && setOpen((v) => !v)}
-        className="input w-full text-left flex items-center justify-between gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        onClick={handleOpen}
+        className="input w-full text-left flex items-center justify-between gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-w-0"
       >
-        <span className={selected ? 'text-gray-900' : 'text-gray-400'}>
+        <span className={`truncate ${selected ? 'text-gray-900' : 'text-gray-400'}`}>
           {selected ? selected.label : placeholder}
         </span>
         <ChevronDownIcon
@@ -40,7 +50,9 @@ export default function CustomSelect({
 
       {open && (
         <div
-          className="absolute z-20 w-full mt-1 rounded-xl max-h-52 overflow-y-auto custom-scrollbar"
+          className={`absolute z-20 w-full rounded-xl max-h-52 overflow-y-auto custom-scrollbar ${
+            dropUp ? 'bottom-full mb-1' : 'mt-1'
+          }`}
           style={{
             background: 'rgba(255, 255, 255, 0.88)',
             backdropFilter: 'blur(24px)',

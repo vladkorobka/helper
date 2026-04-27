@@ -286,7 +286,14 @@ export default function TicketsPage() {
                 tickets.map((t) => (
                   <tr key={t._id} className="hover:bg-gray-50 transition">
                     <td className="table-cell text-center">
-                      <StatusBadge status={t.status} compact />
+                      <div className="flex flex-col items-center gap-1">
+                        <StatusBadge status={t.status} compact />
+                        {t.needsInvoice && (
+                          <span className="text-[10px] font-bold leading-4 px-1 rounded bg-violet-50 text-violet-600">
+                            FV
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="table-cell text-center text-gray-500 whitespace-nowrap text-xs">
                       {formatDateDisplay(t.date)}

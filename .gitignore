@@ -50,3 +50,4 @@ public/uploads/avatars/*.png
 .claude/
 CLAUDE.local.md
 bash.exe.stackdump
+/examples

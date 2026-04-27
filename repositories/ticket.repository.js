@@ -36,7 +36,7 @@ export const ticketRepository = {
       {
         $project: {
           date: 1, status: 1, description: 1, duration: 1,
-          toInvoice: 1, invoiceSent: 1, commute: 1,
+          needsInvoice: 1, invoiced: 1, commute: 1,
           'client._id': 1, 'client.code': 1, 'client.name': 1,
           'executor._id': 1, 'executor.name': 1, 'executor.surname': 1,
         },

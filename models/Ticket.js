@@ -19,9 +19,10 @@ const ticketSchema = new mongoose.Schema(
     priceType: { type: Number, default: 0 },
     category: { type: String, required: true, trim: true },
     commute: { type: Boolean, default: false },
+    needsInvoice: { type: Boolean, default: false }, // whether an invoice should be issued for this ticket
     // Irreversible flags that drive the status
     reportSent: { type: Boolean, default: false },   // email report sent to client — cannot be unset
-    invoiced: { type: Boolean, default: false },     // invoice issued — cannot be unset, requires reportSent
+    invoiced: { type: Boolean, default: false },     // invoice issued — cannot be unset
     executor: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' },
   },
