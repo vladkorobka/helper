@@ -6,6 +6,7 @@ import Layout from '../../../components/layout/Layout.jsx';
 import api from '../../../lib/api.js';
 import { getErrorMessage } from '../../../lib/utils.js';
 import { PlusIcon, XMarkIcon, CheckIcon, ArrowUturnLeftIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import FormPageSkeleton from '../../../components/ui/FormPageSkeleton.jsx';
 
 export default function ProgramFormPage() {
   const { id } = useParams();
@@ -18,6 +19,7 @@ export default function ProgramFormPage() {
   const [addingNewType, setAddingNewType] = useState(false);
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [loading, setLoading] = useState(isEdit);
 
   useEffect(() => {
     // Load available program types from settings
@@ -31,7 +33,8 @@ export default function ProgramFormPage() {
           notes: data.notes || '',
           categories: data.categories || [],
         }))
-        .catch((err) => toast.error(getErrorMessage(err)));
+        .catch((err) => toast.error(getErrorMessage(err)))
+        .finally(() => setLoading(false));
     }
   }, [id]);
 
@@ -106,6 +109,22 @@ export default function ProgramFormPage() {
       setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <Layout>
+        <FormPageSkeleton
+          maxWidth="max-w-xl"
+          rows={[
+            { cols: 2 },
+            { cols: 1, type: 'textarea-sm' },
+            { cols: 1, type: 'pills' },
+          ]}
+          withHeader={false}
+        />
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

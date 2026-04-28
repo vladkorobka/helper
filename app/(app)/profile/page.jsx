@@ -169,7 +169,6 @@ export default function ProfilePage() {
               <p className="font-medium text-gray-800">
                 {user?.name} {user?.surname}
               </p>
-              {/* <p className="mt-0.5 capitalize">{user?.role}</p> */}
               <p className="mt-1 text-xs">
                 Kliknij ikonę aparatu, aby zmienić zdjęcie
               </p>

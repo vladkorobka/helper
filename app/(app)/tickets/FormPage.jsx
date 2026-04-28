@@ -15,6 +15,7 @@ import {
   ArrowUturnLeftIcon,
 } from '@heroicons/react/24/outline';
 import CustomSelect from '../../../components/ui/CustomSelect.jsx';
+import FormPageSkeleton from '../../../components/ui/FormPageSkeleton.jsx';
 import GlassDatePicker from '../../../components/shared/GlassDatePicker.jsx';
 
 const INITIAL = {
@@ -35,86 +36,15 @@ const INITIAL = {
   executor: '',
 };
 
-function TicketFormSkeleton() {
-  const S = ({ className }) => (
-    <div className={`animate-pulse bg-gray-200 rounded-lg ${className}`} />
-  );
-  return (
-    <Layout>
-      <div className="max-w-3xl mx-auto">
-        <div className="card">
-          <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-            <S className="w-36 h-5" />
-            <S className="w-28 h-6 rounded-full" />
-          </div>
-          <div className="p-6 space-y-4 max-h-[calc(100vh-280px)] overflow-y-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <S className="w-16 h-4" />
-                <S className="w-full h-10" />
-              </div>
-              <div className="space-y-1.5">
-                <S className="w-24 h-4" />
-                <S className="w-full h-10" />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <S className="w-14 h-4" />
-              <S className="w-full h-10" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <S className="w-20 h-4" />
-                <S className="w-full h-10" />
-              </div>
-              <div className="space-y-1.5">
-                <S className="w-16 h-4" />
-                <S className="w-full h-10" />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <S className="w-12 h-4" />
-              <S className="w-full h-24" />
-            </div>
-            <div className="space-y-1.5">
-              <S className="w-16 h-4" />
-              <S className="w-full h-16" />
-            </div>
-            <div className="space-y-1.5">
-              <S className="w-12 h-4" />
-              <div className="flex items-center gap-3">
-                <S className="w-16 h-10" />
-                <S className="w-10 h-4" />
-                <S className="w-16 h-10" />
-                <S className="w-10 h-4" />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="space-y-1.5">
-                  <S className="w-20 h-4" />
-                  <S className="w-full h-10" />
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-6 pt-2">
-              <S className="w-20 h-5" />
-              <S className="w-32 h-5" />
-            </div>
-          </div>
-          <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-            <S className="w-16 h-9" />
-            <div className="flex gap-2">
-              <S className="w-20 h-9" />
-              <S className="w-10 h-9" />
-              <S className="w-20 h-9" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </Layout>
-  );
-}
+const TICKET_SKELETON_ROWS = [
+  { cols: 2 },
+  { cols: 1 },
+  { cols: 2 },
+  { cols: 1, type: 'textarea' },
+  { cols: 1, type: 'textarea-sm' },
+  { cols: 1 },
+  { cols: 3 },
+];
 
 export default function TicketFormPage() {
   const DEFAULT_PRICE = 250;
@@ -350,7 +280,12 @@ export default function TicketFormPage() {
     invoiced: 'bg-teal-50 text-teal-700 border border-teal-200',
   }[st];
 
-  if (loading) return <TicketFormSkeleton />;
+  if (loading)
+    return (
+      <Layout>
+        <FormPageSkeleton rows={TICKET_SKELETON_ROWS} scrollable />
+      </Layout>
+    );
 
   return (
     <Layout>

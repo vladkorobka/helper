@@ -8,6 +8,7 @@ import api from '../../../../lib/api.js';
 import { getErrorMessage } from '../../../../lib/utils.js';
 import { useAuth } from '../../../../context/AuthContext.jsx';
 import { CheckIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
+import FormPageSkeleton from '../../../../components/ui/FormPageSkeleton.jsx';
 
 const PERM_LABEL = { tickets: 'Zlecenia', clients: 'Klienci', programs: 'Programy' };
 
@@ -28,6 +29,7 @@ export default function EmployeeFormPage() {
     permissions: ['tickets'], active: true,
   });
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(isEdit);
 
   useEffect(() => {
     if (isEdit) {
@@ -40,7 +42,8 @@ export default function EmployeeFormPage() {
           permissions: data.permissions || ['tickets'],
           active: data.active !== false,
         }))
-        .catch((err) => toast.error(getErrorMessage(err)));
+        .catch((err) => toast.error(getErrorMessage(err)))
+        .finally(() => setLoading(false));
     }
   }, [id]);
 
@@ -72,6 +75,23 @@ export default function EmployeeFormPage() {
       setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <Layout>
+        <FormPageSkeleton
+          maxWidth="max-w-xl"
+          rows={[
+            { cols: 2 },
+            { cols: 1 },
+            { cols: 1 },
+            { cols: 1, type: 'pills' },
+          ]}
+          withHeader={false}
+        />
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

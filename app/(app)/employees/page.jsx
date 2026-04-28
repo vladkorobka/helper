@@ -45,7 +45,11 @@ export default function EmployeesPage() {
   const [invitesLoading, setInvitesLoading] = useState(true);
 
   // Resend dialog state
-  const [resendDialog, setResendDialog] = useState({ open: false, invite: null, email: '' });
+  const [resendDialog, setResendDialog] = useState({
+    open: false,
+    invite: null,
+    email: '',
+  });
   const [resending, setResending] = useState(false);
 
   const fetchEmployees = async () => {
@@ -131,7 +135,9 @@ export default function EmployeesPage() {
                 <th className="table-header w-[50px]" />
                 <th className="table-header">Imię i nazwisko</th>
                 <th className="table-header hidden md:table-cell">Login</th>
-                <th className="table-header hidden lg:table-cell">Uprawnienia</th>
+                <th className="table-header hidden lg:table-cell">
+                  Uprawnienia
+                </th>
                 <th className="table-header hidden lg:table-cell">Status</th>
                 <th className="table-header w-[80px]" />
               </tr>
@@ -147,19 +153,22 @@ export default function EmployeesPage() {
                 </tr>
               ) : employees.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="table-cell text-center py-10 text-gray-400">
+                  <td
+                    colSpan={6}
+                    className="table-cell text-center py-10 text-gray-400"
+                  >
                     Brak pracowników
                   </td>
                 </tr>
               ) : (
                 employees.map((emp) => (
                   <tr key={emp._id} className="hover:bg-gray-50 transition">
-                    <td className="table-cell">
+                    <td className="table-cell ">
                       {emp.avatar ? (
                         <img
                           src={emp.avatar}
                           alt={emp.name}
-                          className="w-8 h-8 rounded-full object-cover"
+                          className="max-w-none w-8 h-8 rounded-full object-cover"
                         />
                       ) : (
                         <UserCircleIcon className="w-8 h-8 text-gray-300" />
@@ -229,7 +238,8 @@ export default function EmployeesPage() {
               Oczekujące zaproszenia
             </h2>
             <span className="ml-auto text-xs text-gray-400">
-              {invites.length} {invites.length === 1 ? 'zaproszenie' : 'zaproszeń'}
+              {invites.length}{' '}
+              {invites.length === 1 ? 'zaproszenie' : 'zaproszeń'}
             </span>
           </div>
 
@@ -239,7 +249,9 @@ export default function EmployeesPage() {
                 <tr>
                   <th className="table-header">Imię</th>
                   <th className="table-header">Email</th>
-                  <th className="table-header hidden md:table-cell">Uprawnienia</th>
+                  <th className="table-header hidden md:table-cell">
+                    Uprawnienia
+                  </th>
                   <th className="table-header hidden lg:table-cell">Wygasa</th>
                   <th className="table-header w-[120px]" />
                 </tr>
@@ -247,8 +259,12 @@ export default function EmployeesPage() {
               <tbody className="divide-y divide-gray-50">
                 {invites.map((inv) => (
                   <tr key={inv._id} className="hover:bg-gray-50 transition">
-                    <td className="table-cell font-medium text-gray-900">{inv.name}</td>
-                    <td className="table-cell text-gray-500 text-sm">{inv.email}</td>
+                    <td className="table-cell font-medium text-gray-900">
+                      {inv.name}
+                    </td>
+                    <td className="table-cell text-gray-500 text-sm">
+                      {inv.email}
+                    </td>
                     <td className="table-cell hidden md:table-cell">
                       <div className="flex flex-wrap gap-1">
                         {inv.permissions.map((p) => (
@@ -291,7 +307,9 @@ export default function EmployeesPage() {
                 Wyślij zaproszenie ponownie
               </h2>
               <button
-                onClick={() => setResendDialog({ open: false, invite: null, email: '' })}
+                onClick={() =>
+                  setResendDialog({ open: false, invite: null, email: '' })
+                }
                 className="p-1.5 rounded hover:bg-gray-100 text-gray-400"
               >
                 <XMarkIcon className="h-5 w-5" />
@@ -332,12 +350,18 @@ export default function EmployeesPage() {
               <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
                 <button
                   type="button"
-                  onClick={() => setResendDialog({ open: false, invite: null, email: '' })}
+                  onClick={() =>
+                    setResendDialog({ open: false, invite: null, email: '' })
+                  }
                   className="btn-ghost"
                 >
                   Anuluj
                 </button>
-                <button type="submit" disabled={resending} className="btn-primary">
+                <button
+                  type="submit"
+                  disabled={resending}
+                  className="btn-primary"
+                >
                   {resending ? 'Wysyłam...' : 'Wyślij'}
                 </button>
               </div>

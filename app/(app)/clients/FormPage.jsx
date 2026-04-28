@@ -7,6 +7,7 @@ import api from '../../../lib/api.js';
 import { getErrorMessage } from '../../../lib/utils.js';
 import { PlusIcon, XMarkIcon, CheckIcon, ArrowUturnLeftIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 import CustomSelect from '../../../components/ui/CustomSelect.jsx';
+import FormPageSkeleton from '../../../components/ui/FormPageSkeleton.jsx';
 
 const INITIAL = {
   code: '', nip: '', name: '', email: '', phone: '', address: '', notes: '',
@@ -132,7 +133,22 @@ export default function ClientFormPage() {
   };
 
   if (loading) {
-    return <Layout><div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" /></div></Layout>;
+    return (
+      <Layout>
+        <FormPageSkeleton
+          rows={[
+            { cols: 2 },
+            { cols: 1 },
+            { cols: 2 },
+            { cols: 1 },
+            { cols: 1, type: 'textarea-sm' },
+            { cols: 1, type: 'tall' },
+            { cols: 1, type: 'tall' },
+          ]}
+          withHeader={false}
+        />
+      </Layout>
+    );
   }
 
   return (

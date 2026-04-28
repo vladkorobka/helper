@@ -22,7 +22,9 @@ export default function ClientsPage() {
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, []);
 
   const fetchClients = async (s = '') => {
@@ -65,8 +67,9 @@ export default function ClientsPage() {
   return (
     <Layout>
       <div className="card flex flex-col h-[calc(100vh-120px)]">
-        <div className="flex-none flex justify-between items-center p-4 border-b border-gray-100/60">
-          <div className="relative max-w-sm">
+        <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100">
+          <h2 className="text-sm font-semibold text-gray-700">Klienci</h2>
+          <div className="relative w-100">
             <MagnifyingGlassIcon className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               className="input pl-9"
@@ -82,88 +85,88 @@ export default function ClientsPage() {
         </div>
 
         <div className="flex-1 overflow-hidden">
-        <div className="overflow-auto h-full custom-scrollbar">
-          <table className="w-full">
-            <thead className="sticky top-0 z-10 bg-slate-50 border-b border-gray-100">
-              <tr>
-                <th className="table-header">Kod</th>
-                <th className="table-header">Nazwa</th>
-                <th className="table-header hidden md:table-cell">NIP</th>
-                <th className="table-header hidden lg:table-cell">Email</th>
-                <th className="table-header hidden lg:table-cell">Tagi</th>
-                <th className="table-header w-[80px]" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {loading ? (
+          <div className="overflow-auto h-full custom-scrollbar">
+            <table className="w-full">
+              <thead className="sticky top-0 z-10 bg-slate-50 border-b border-gray-100">
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="table-cell text-center py-10 text-gray-400"
-                  >
-                    <div className="flex justify-center">
-                      <div className="w-6 h-6 border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
-                    </div>
-                  </td>
+                  <th className="table-header">Kod</th>
+                  <th className="table-header">Nazwa</th>
+                  <th className="table-header hidden md:table-cell">NIP</th>
+                  <th className="table-header hidden lg:table-cell">Email</th>
+                  <th className="table-header hidden lg:table-cell">Tagi</th>
+                  <th className="table-header w-[80px]" />
                 </tr>
-              ) : clients.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="table-cell text-center py-10 text-gray-400"
-                  >
-                    Brak klientów
-                  </td>
-                </tr>
-              ) : (
-                clients.map((c) => (
-                  <tr key={c._id} className="hover:bg-gray-50 transition">
-                    <td className="table-cell font-mono font-medium text-gray-900 text-sm">
-                      {c.code}
-                    </td>
-                    <td className="table-cell font-medium text-gray-900">
-                      {c.name}
-                    </td>
-                    <td className="table-cell hidden md:table-cell text-gray-500 text-sm">
-                      {c.nip || '—'}
-                    </td>
-                    <td className="table-cell hidden lg:table-cell text-gray-500 text-sm">
-                      {c.email}
-                    </td>
-                    <td className="table-cell hidden lg:table-cell">
-                      <div className="flex flex-wrap gap-1">
-                        {c.tags?.map((tag, i) => (
-                          <span
-                            key={i}
-                            className="text-xs bg-gray-100 text-gray-600 rounded-full px-2 py-0.5"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="table-cell">
-                      <div className="flex items-center gap-1">
-                        <Link
-                          href={`/clients/${c._id}`}
-                          className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition"
-                        >
-                          <EllipsisHorizontalIcon className="h-5 w-5" />
-                        </Link>
-                        <button
-                          onClick={() => setDeleteId(c._id)}
-                          className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="table-cell text-center py-10 text-gray-400"
+                    >
+                      <div className="flex justify-center">
+                        <div className="w-6 h-6 border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : clients.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="table-cell text-center py-10 text-gray-400"
+                    >
+                      Brak klientów
+                    </td>
+                  </tr>
+                ) : (
+                  clients.map((c) => (
+                    <tr key={c._id} className="hover:bg-gray-50 transition">
+                      <td className="table-cell font-mono font-medium text-gray-900 text-sm">
+                        {c.code}
+                      </td>
+                      <td className="table-cell font-medium text-gray-900">
+                        {c.name}
+                      </td>
+                      <td className="table-cell hidden md:table-cell text-gray-500 text-sm">
+                        {c.nip || '—'}
+                      </td>
+                      <td className="table-cell hidden lg:table-cell text-gray-500 text-sm">
+                        {c.email}
+                      </td>
+                      <td className="table-cell hidden lg:table-cell">
+                        <div className="flex flex-wrap gap-1">
+                          {c.tags?.map((tag, i) => (
+                            <span
+                              key={i}
+                              className="text-xs bg-gray-100 text-gray-600 rounded-full px-2 py-0.5"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="table-cell">
+                        <div className="flex items-center gap-1">
+                          <Link
+                            href={`/clients/${c._id}`}
+                            className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition"
+                          >
+                            <EllipsisHorizontalIcon className="h-5 w-5" />
+                          </Link>
+                          <button
+                            onClick={() => setDeleteId(c._id)}
+                            className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
