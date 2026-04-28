@@ -42,6 +42,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const { user, refreshUser } = useAuth();
   const fileInputRef = useRef(null);
+  console.log(user);
 
   const [form, setForm] = useState({
     name: user?.name || '',
@@ -56,7 +57,9 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    api.get('/settings').then(({ data }) => setCategories(data.executionTypes || []));
+    api
+      .get('/settings')
+      .then(({ data }) => setCategories(data.executionTypes || []));
   }, []);
 
   // Avatar crop state
@@ -166,7 +169,7 @@ export default function ProfilePage() {
               <p className="font-medium text-gray-800">
                 {user?.name} {user?.surname}
               </p>
-              <p className="mt-0.5 capitalize">{user?.role}</p>
+              {/* <p className="mt-0.5 capitalize">{user?.role}</p> */}
               <p className="mt-1 text-xs">
                 Kliknij ikonę aparatu, aby zmienić zdjęcie
               </p>
@@ -276,20 +279,27 @@ export default function ProfilePage() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Ulubiona kategoria zlecenia
-              </label>
-              <CustomSelect
-                value={form.preferredCategory}
-                onChange={(val) => setForm((p) => ({ ...p, preferredCategory: val }))}
-                options={[{ value: '', label: '— brak preferencji —' }, ...categories.map((c) => ({ value: c, label: c }))]}
-                placeholder="— brak preferencji —"
-              />
-              <p className="text-xs text-gray-400 mt-1">
-                Będzie automatycznie wybrana przy tworzeniu nowego zlecenia
-              </p>
-            </div>
+            {user?.role === 'employee' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Ulubiona kategoria zlecenia
+                </label>
+                <CustomSelect
+                  value={form.preferredCategory}
+                  onChange={(val) =>
+                    setForm((p) => ({ ...p, preferredCategory: val }))
+                  }
+                  options={[
+                    { value: '', label: '— brak preferencji —' },
+                    ...categories.map((c) => ({ value: c, label: c })),
+                  ]}
+                  placeholder="— brak preferencji —"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Będzie automatycznie wybrana przy tworzeniu nowego zlecenia
+                </p>
+              </div>
+            )}
 
             <hr className="border-gray-100" />
 
