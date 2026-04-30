@@ -1,7 +1,10 @@
 import { Ticket } from '../models/Ticket.js';
+// Ensure referenced schemas are registered for populate()
+import '../models/Client.js';
+import '../models/Employee.js';
 
 const POPULATE_OPTIONS = [
-  { path: 'client', select: 'code name email' },
+  { path: 'client', select: 'code name notes email' },
   { path: 'executor', select: 'name surname' },
   { path: 'createdBy', select: 'name surname' },
 ];
@@ -35,10 +38,19 @@ export const ticketRepository = {
       { $limit: limit },
       {
         $project: {
-          date: 1, status: 1, description: 1, duration: 1,
-          needsInvoice: 1, invoiced: 1, commute: 1,
-          'client._id': 1, 'client.code': 1, 'client.name': 1,
-          'executor._id': 1, 'executor.name': 1, 'executor.surname': 1,
+          date: 1,
+          status: 1,
+          description: 1,
+          duration: 1,
+          needsInvoice: 1,
+          invoiced: 1,
+          commute: 1,
+          'client._id': 1,
+          'client.code': 1,
+          'client.name': 1,
+          'executor._id': 1,
+          'executor.name': 1,
+          'executor.surname': 1,
         },
       },
     ];
@@ -70,11 +82,20 @@ export const ticketRepository = {
       { $sort: { date: 1 } },
       {
         $project: {
-          date: 1, duration: 1, orderedBy: 1,
-          description: 1, note: 1, service_type: 1,
-          priceType: 1, category: 1, commute: 1, invoiced: 1,
+          date: 1,
+          duration: 1,
+          orderedBy: 1,
+          description: 1,
+          note: 1,
+          service_type: 1,
+          priceType: 1,
+          category: 1,
+          commute: 1,
+          invoiced: 1,
           'client.name': 1,
-          'executor.name': 1, 'executor.surname': 1,
+          'client.notes': 1,
+          'executor.name': 1,
+          'executor.surname': 1,
         },
       },
     ];
@@ -90,7 +111,10 @@ export const ticketRepository = {
   },
 
   updateById(id, data) {
-    return Ticket.findByIdAndUpdate(id, data, { new: true, runValidators: true }).populate(POPULATE_OPTIONS);
+    return Ticket.findByIdAndUpdate(id, data, {
+      new: true,
+      runValidators: true,
+    }).populate(POPULATE_OPTIONS);
   },
 
   deleteById(id) {

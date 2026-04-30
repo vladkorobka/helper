@@ -5,13 +5,27 @@ import { toast } from 'sonner';
 import Layout from '../../../components/layout/Layout.jsx';
 import api from '../../../lib/api.js';
 import { getErrorMessage } from '../../../lib/utils.js';
-import { PlusIcon, XMarkIcon, CheckIcon, ArrowUturnLeftIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import {
+  PlusIcon,
+  XMarkIcon,
+  CheckIcon,
+  ArrowUturnLeftIcon,
+  GlobeAltIcon,
+} from '@heroicons/react/24/outline';
 import CustomSelect from '../../../components/ui/CustomSelect.jsx';
 import FormPageSkeleton from '../../../components/ui/FormPageSkeleton.jsx';
 
 const INITIAL = {
-  code: '', nip: '', name: '', email: '', phone: '', address: '', notes: '',
-  contactPerson: [''], tags: [], programs: [],
+  code: '',
+  nip: '',
+  name: '',
+  email: '',
+  phone: '',
+  address: '',
+  notes: '',
+  contactPerson: [''],
+  tags: [],
+  programs: [],
 };
 
 export default function ClientFormPage() {
@@ -31,7 +45,8 @@ export default function ClientFormPage() {
     api.get('/programs/dropdown').then(({ data }) => setPrograms(data));
     api.get('/employees/executors').then(({ data }) => setEmployees(data));
     if (isEdit) {
-      api.get(`/clients/${id}`)
+      api
+        .get(`/clients/${id}`)
         .then(({ data }) => {
           setForm({
             code: data.code || '',
@@ -41,14 +56,17 @@ export default function ClientFormPage() {
             phone: data.phone || '',
             address: data.address || '',
             notes: data.notes || '',
-            contactPerson: data.contactPerson?.length ? data.contactPerson : [''],
+            contactPerson: data.contactPerson?.length
+              ? data.contactPerson
+              : [''],
             tags: data.tags || [],
-            programs: data.programs?.map((p) => ({
-              program: p.program?._id || p.program || '',
-              version: p.version || '',
-              employee: p.employee || '',
-              email: p.email || '',
-            })) || [],
+            programs:
+              data.programs?.map((p) => ({
+                program: p.program?._id || p.program || '',
+                version: p.version || '',
+                employee: p.employee || '',
+                email: p.email || '',
+              })) || [],
           });
         })
         .catch((err) => toast.error(getErrorMessage(err)))
@@ -56,7 +74,8 @@ export default function ClientFormPage() {
     }
   }, [id]);
 
-  const handleField = (field, value) => setForm((p) => ({ ...p, [field]: value }));
+  const handleField = (field, value) =>
+    setForm((p) => ({ ...p, [field]: value }));
 
   const handleContact = (i, value) => {
     setForm((p) => {
@@ -77,7 +96,10 @@ export default function ClientFormPage() {
   const addProgram = () => {
     setForm((p) => ({
       ...p,
-      programs: [...p.programs, { program: '', version: '', employee: '', email: '' }],
+      programs: [
+        ...p.programs,
+        { program: '', version: '', employee: '', email: '' },
+      ],
     }));
   };
 
@@ -109,7 +131,10 @@ export default function ClientFormPage() {
     e.preventDefault();
     // Filter out empty contacts
     const contactPerson = form.contactPerson.filter(Boolean);
-    if (!contactPerson.length) { toast.error('Wymagana co najmniej jedna osoba kontaktowa'); return; }
+    if (!contactPerson.length) {
+      toast.error('Wymagana co najmniej jedna osoba kontaktowa');
+      return;
+    }
 
     setSaving(true);
     try {
@@ -161,10 +186,14 @@ export default function ClientFormPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic info */}
           <div className="card p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Podstawowe dane</h2>
+            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+              Podstawowe dane
+            </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">NIP</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  NIP
+                </label>
                 <div className="flex gap-2">
                   <input
                     className="input flex-1"
@@ -188,44 +217,94 @@ export default function ClientFormPage() {
                     GUS
                   </button>
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Wpisz NIP i kliknij GUS, aby pobrać dane firmy.</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Wpisz NIP i kliknij GUS, aby pobrać dane firmy.
+                </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kod *</label>
-                <input className="input" value={form.code} onChange={(e) => handleField('code', e.target.value)} required />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Kod *
+                </label>
+                <input
+                  className="input"
+                  value={form.code}
+                  onChange={(e) => handleField('code', e.target.value)}
+                  required
+                />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nazwa *</label>
-              <input className="input" value={form.name} onChange={(e) => handleField('name', e.target.value)} required />
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nazwa *
+              </label>
+              <input
+                className="input"
+                value={form.name}
+                onChange={(e) => handleField('name', e.target.value)}
+                required
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                <input type="email" className="input" value={form.email} onChange={(e) => handleField('email', e.target.value)} required />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  className="input"
+                  value={form.email}
+                  onChange={(e) => handleField('email', e.target.value)}
+                  required
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
-                <input className="input" value={form.phone} onChange={(e) => handleField('phone', e.target.value)} />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Telefon
+                </label>
+                <input
+                  className="input"
+                  value={form.phone}
+                  onChange={(e) => handleField('phone', e.target.value)}
+                />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Adres</label>
-              <input className="input" value={form.address} onChange={(e) => handleField('address', e.target.value)} />
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Adres
+              </label>
+              <input
+                className="input"
+                value={form.address}
+                onChange={(e) => handleField('address', e.target.value)}
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notatki</label>
-              <textarea className="input resize-none" rows={3} value={form.notes} onChange={(e) => handleField('notes', e.target.value)} />
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Notatki wewnętrzne
+              </label>
+              <textarea
+                className="input resize-none"
+                rows={3}
+                value={form.notes}
+                onChange={(e) => handleField('notes', e.target.value)}
+              />
             </div>
           </div>
 
           {/* Contact persons */}
           <div className="card p-6 space-y-3">
             <div className="flex justify-between items-center">
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Osoby kontaktowe</h2>
+              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                Osoby kontaktowe
+              </h2>
               <button
                 type="button"
-                onClick={() => setForm((p) => ({ ...p, contactPerson: [...p.contactPerson, ''] }))}
+                onClick={() =>
+                  setForm((p) => ({
+                    ...p,
+                    contactPerson: [...p.contactPerson, ''],
+                  }))
+                }
                 className="btn-ghost text-xs"
               >
                 <PlusIcon className="h-3.5 w-3.5" /> Dodaj
@@ -242,7 +321,14 @@ export default function ClientFormPage() {
                 {form.contactPerson.length > 1 && (
                   <button
                     type="button"
-                    onClick={() => setForm((prev) => ({ ...prev, contactPerson: prev.contactPerson.filter((_, j) => j !== i) }))}
+                    onClick={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        contactPerson: prev.contactPerson.filter(
+                          (_, j) => j !== i,
+                        ),
+                      }))
+                    }
                     className="p-2 text-gray-400 hover:text-red-500"
                   >
                     <XMarkIcon className="h-4 w-4" />
@@ -254,22 +340,42 @@ export default function ClientFormPage() {
 
           {/* Tags */}
           <div className="card p-6 space-y-3">
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Tagi</h2>
+            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+              Tagi
+            </h2>
             <div className="flex gap-2">
               <input
                 className="input flex-1"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag();
+                  }
+                }}
                 placeholder="Wpisz tag i naciśnij Enter"
               />
-              <button type="button" onClick={addTag} className="btn-ghost">Dodaj</button>
+              <button type="button" onClick={addTag} className="btn-ghost">
+                Dodaj
+              </button>
             </div>
             <div className="flex flex-wrap gap-2">
               {form.tags.map((tag, i) => (
-                <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 bg-sky-50 text-sky-700 rounded-full text-sm border border-sky-100">
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-sky-50 text-sky-700 rounded-full text-sm border border-sky-100"
+                >
                   #{tag}
-                  <button type="button" onClick={() => setForm((p) => ({ ...p, tags: p.tags.filter((_, j) => j !== i) }))}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm((p) => ({
+                        ...p,
+                        tags: p.tags.filter((_, j) => j !== i),
+                      }))
+                    }
+                  >
                     <XMarkIcon className="h-3 w-3" />
                   </button>
                 </span>
@@ -280,39 +386,68 @@ export default function ClientFormPage() {
           {/* Programs */}
           <div className="card p-6 space-y-3">
             <div className="flex justify-between items-center">
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Programy</h2>
-              <button type="button" onClick={addProgram} className="btn-ghost text-xs">
+              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                Programy
+              </h2>
+              <button
+                type="button"
+                onClick={addProgram}
+                className="btn-ghost text-xs"
+              >
                 <PlusIcon className="h-3.5 w-3.5" /> Dodaj program
               </button>
             </div>
             {form.programs.map((prog, i) => (
-              <div key={i} className="grid grid-cols-4 gap-2 p-3 bg-gray-50/60 rounded-xl items-center">
+              <div
+                key={i}
+                className="grid grid-cols-4 gap-2 p-3 bg-gray-50/60 rounded-xl items-center"
+              >
                 <CustomSelect
                   value={prog.program}
-                  onChange={(val) => setForm((p) => {
-                    const arr = [...p.programs];
-                    arr[i] = { ...arr[i], program: val };
-                    return { ...p, programs: arr };
-                  })}
-                  options={[{ value: '', label: 'Wybierz program' }, ...programs.map((p) => ({ value: p._id, label: `${p.code} — ${p.name}` }))]}
+                  onChange={(val) =>
+                    setForm((p) => {
+                      const arr = [...p.programs];
+                      arr[i] = { ...arr[i], program: val };
+                      return { ...p, programs: arr };
+                    })
+                  }
+                  options={[
+                    { value: '', label: 'Wybierz program' },
+                    ...programs.map((p) => ({
+                      value: p._id,
+                      label: `${p.code} — ${p.name}`,
+                    })),
+                  ]}
                   placeholder="Wybierz program"
                 />
                 <input
                   className="input"
                   placeholder="Wersja"
                   value={prog.version}
-                  onChange={(e) => setForm((p) => {
-                    const arr = [...p.programs]; arr[i] = { ...arr[i], version: e.target.value }; return { ...p, programs: arr };
-                  })}
+                  onChange={(e) =>
+                    setForm((p) => {
+                      const arr = [...p.programs];
+                      arr[i] = { ...arr[i], version: e.target.value };
+                      return { ...p, programs: arr };
+                    })
+                  }
                 />
                 <CustomSelect
                   value={prog.employee}
-                  onChange={(val) => setForm((p) => {
-                    const arr = [...p.programs];
-                    arr[i] = { ...arr[i], employee: val };
-                    return { ...p, programs: arr };
-                  })}
-                  options={[{ value: '', label: '— Opiekun —' }, ...employees.map((emp) => ({ value: `${emp.name} ${emp.surname}`.trim(), label: `${emp.name} ${emp.surname}` }))]}
+                  onChange={(val) =>
+                    setForm((p) => {
+                      const arr = [...p.programs];
+                      arr[i] = { ...arr[i], employee: val };
+                      return { ...p, programs: arr };
+                    })
+                  }
+                  options={[
+                    { value: '', label: '— Opiekun —' },
+                    ...employees.map((emp) => ({
+                      value: `${emp.name} ${emp.surname}`.trim(),
+                      label: `${emp.name} ${emp.surname}`,
+                    })),
+                  ]}
                   placeholder="— Opiekun —"
                 />
                 <div className="flex gap-2">
@@ -321,13 +456,22 @@ export default function ClientFormPage() {
                     type="email"
                     placeholder="Email"
                     value={prog.email}
-                    onChange={(e) => setForm((p) => {
-                      const arr = [...p.programs]; arr[i] = { ...arr[i], email: e.target.value }; return { ...p, programs: arr };
-                    })}
+                    onChange={(e) =>
+                      setForm((p) => {
+                        const arr = [...p.programs];
+                        arr[i] = { ...arr[i], email: e.target.value };
+                        return { ...p, programs: arr };
+                      })
+                    }
                   />
                   <button
                     type="button"
-                    onClick={() => setForm((p) => ({ ...p, programs: p.programs.filter((_, j) => j !== i) }))}
+                    onClick={() =>
+                      setForm((p) => ({
+                        ...p,
+                        programs: p.programs.filter((_, j) => j !== i),
+                      }))
+                    }
                     className="p-2 text-gray-400 hover:text-red-500"
                   >
                     <XMarkIcon className="h-4 w-4" />
@@ -336,13 +480,19 @@ export default function ClientFormPage() {
               </div>
             ))}
             {form.programs.length === 0 && (
-              <p className="text-sm text-gray-400 text-center py-4">Brak przypisanych programów</p>
+              <p className="text-sm text-gray-400 text-center py-4">
+                Brak przypisanych programów
+              </p>
             )}
           </div>
 
           {/* Actions */}
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={() => router.push('/clients')} className="btn-ghost">
+            <button
+              type="button"
+              onClick={() => router.push('/clients')}
+              className="btn-ghost"
+            >
               <ArrowUturnLeftIcon className="h-4 w-4" /> Anuluj
             </button>
             <button type="submit" disabled={saving} className="btn-primary">

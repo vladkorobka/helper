@@ -1,4 +1,6 @@
 import { Client } from '../models/Client.js';
+// Ensure Program schema is registered for populate('programs.program')
+import '../models/Program.js';
 
 export const clientRepository = {
   findAll(search = '') {

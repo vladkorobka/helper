@@ -64,7 +64,9 @@ export const ticketService = {
       executor: 'executor.name',
     };
 
-    const sort = { [sortFieldMap[sortField] || 'date']: sortOrder === 'asc' ? 1 : -1 };
+    const sort = {
+      [sortFieldMap[sortField] || 'date']: sortOrder === 'asc' ? 1 : -1,
+    };
 
     return ticketRepository.findFiltered({ match, sort });
   },
@@ -72,7 +74,10 @@ export const ticketService = {
   async getById(id) {
     await connectDB();
     const ticket = await ticketRepository.findById(id);
-    if (!ticket) throw Object.assign(new Error('Zlecenie nie znalezione'), { statusCode: 404 });
+    if (!ticket)
+      throw Object.assign(new Error('Zlecenie nie znalezione'), {
+        statusCode: 404,
+      });
     return ticket;
   },
 
@@ -92,7 +97,7 @@ export const ticketService = {
     if (reportSent) {
       const populated = await ticketRepository.findById(ticket._id);
       sendTicketReportEmail({ ticket: populated }).catch((err) =>
-        console.error('[email] Błąd wysyłania raportu:', err.message)
+        console.error('[email] Błąd wysyłania raportu:', err.message),
       );
     }
 
@@ -102,7 +107,10 @@ export const ticketService = {
   async update(id, data) {
     await connectDB();
     const existing = await ticketRepository.findById(id);
-    if (!existing) throw Object.assign(new Error('Zlecenie nie znalezione'), { statusCode: 404 });
+    if (!existing)
+      throw Object.assign(new Error('Zlecenie nie znalezione'), {
+        statusCode: 404,
+      });
 
     const wasReportSent = existing.reportSent;
 
@@ -122,7 +130,7 @@ export const ticketService = {
     // Send email whenever user explicitly requests reportSent (re-send supported)
     if (data.reportSent && reportSent) {
       sendTicketReportEmail({ ticket }).catch((err) =>
-        console.error('[email] Błąd wysyłania raportu:', err.message)
+        console.error('[email] Błąd wysyłania raportu:', err.message),
       );
     }
 
@@ -134,11 +142,15 @@ export const ticketService = {
     const [mm, yyyy] = date.split('-');
     const start = new Date(parseInt(yyyy), parseInt(mm) - 1, 1);
     const end = new Date(parseInt(yyyy), parseInt(mm), 1);
-    const tickets = await ticketRepository.findForExport({ date: { $gte: start, $lt: end } });
+    const tickets = await ticketRepository.findForExport({
+      date: { $gte: start, $lt: end },
+    });
 
     const esc = (v) => {
       const s = String(v ?? '').replace(/\r\n|\r|\n/g, ' ');
-      return s.includes(';') || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
+      return s.includes(';') || s.includes('"')
+        ? `"${s.replace(/"/g, '""')}"`
+        : s;
     };
 
     const fmt = (d) => {
@@ -149,10 +161,12 @@ export const ticketService = {
       return `${y}-${m}-${day}`;
     };
 
-    const header = 'Klient;Data;Czas (w minutach);Kto zlecił;Kto zrobił;Opis;Uwagi;Cena;Kategoria;Dojazd;Typ usługi;Wystawiona faktura';
+    const header =
+      'Klient;Notatka klienta;Data;Czas (w minutach);Kto zlecił;Kto zrobił;Opis;Uwagi;Cena;Kategoria;Dojazd;Typ usługi;Wystawiona faktura';
     const rows = tickets.map((t) =>
       [
         t.client?.name,
+        t.client?.notes,
         fmt(t.date),
         t.duration,
         t.orderedBy,
@@ -164,7 +178,9 @@ export const ticketService = {
         t.commute ? 'Tak' : 'Nie',
         t.service_type,
         t.invoiced ? 'Tak' : 'Nie',
-      ].map(esc).join(';')
+      ]
+        .map(esc)
+        .join(';'),
     );
 
     return '﻿' + [header, ...rows].join('\n');
@@ -173,7 +189,10 @@ export const ticketService = {
   async delete(id) {
     await connectDB();
     const ticket = await ticketRepository.deleteById(id);
-    if (!ticket) throw Object.assign(new Error('Zlecenie nie znalezione'), { statusCode: 404 });
+    if (!ticket)
+      throw Object.assign(new Error('Zlecenie nie znalezione'), {
+        statusCode: 404,
+      });
     return { message: 'Zlecenie usunięte' };
   },
 };
