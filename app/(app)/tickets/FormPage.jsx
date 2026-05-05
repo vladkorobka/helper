@@ -582,7 +582,7 @@ export default function TicketFormPage() {
                   onChange={handleChange}
                   className="w-4 h-4 text-violet-500 rounded border-gray-300"
                 />
-                <span className="text-sm text-gray-700">Wymaga faktury</span>
+                <span className="text-sm text-gray-700">Do fakturowania</span>
               </label>
               {/* invoiced is irreversible — read-only once true */}
               {form.needsInvoice && (
