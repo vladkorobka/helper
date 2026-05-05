@@ -43,7 +43,7 @@ export const authService = {
 
   // ── Invites ──────────────────────────────────────────────────────────────
 
-  async createInvite({ email, name, role, permissions, invitedBy }) {
+  async createInvite({ email, name, role, permissions, canExportCsv, invitedBy }) {
     await connectDB();
     // Check if email is already in use
     const existing = await Employee.findOne({ email });
@@ -57,7 +57,7 @@ export const authService = {
     // Remove any previous unused invite for this email
     await Invite.deleteMany({ email, usedAt: null });
 
-    await Invite.create({ email, name, token, role, permissions, invitedBy, expiresAt });
+    await Invite.create({ email, name, token, role, permissions, canExportCsv: !!canExportCsv, invitedBy, expiresAt });
 
     const inviteUrl = `${CLIENT_URL}/accept-invite?token=${token}`;
     await sendInviteEmail({ to: email, name, inviteUrl });
@@ -89,6 +89,7 @@ export const authService = {
       phone,
       role: invite.role,
       permissions: invite.permissions,
+      canExportCsv: !!invite.canExportCsv,
       isVerified: true,
       active: true,
     });

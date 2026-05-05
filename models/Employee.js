@@ -26,6 +26,7 @@ const employeeSchema = new mongoose.Schema(
       enum: ['tickets', 'clients', 'programs'],
       default: ['tickets'],
     },
+    canExportCsv: { type: Boolean, default: false },
     avatar: { type: String, default: null },
     avatarPublicId: { type: String, default: null },
     preferredCategory: { type: String, default: '' },

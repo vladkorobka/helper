@@ -15,6 +15,7 @@ const inviteSchema = new mongoose.Schema(
       enum: ['tickets', 'clients', 'programs'],
       default: ['tickets'],
     },
+    canExportCsv: { type: Boolean, default: false },
     invitedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' },
     usedAt: { type: Date, default: null },
     expiresAt: { type: Date, required: true },

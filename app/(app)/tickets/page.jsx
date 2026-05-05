@@ -9,6 +9,7 @@ import MonthYearPicker from '../../../components/shared/MonthYearPicker.jsx';
 import CustomSelect from '../../../components/ui/CustomSelect.jsx';
 import ExportCsvModal from '../../../components/shared/ExportCsvModal.jsx';
 import api from '../../../lib/api.js';
+import { useAuth } from '../../../context/AuthContext.jsx';
 import { formatDateDisplay, formatDuration } from '../../../lib/utils.js';
 import {
   PlusIcon,
@@ -41,6 +42,8 @@ function getSaved(key, fallback) {
 }
 
 export default function TicketsPage() {
+  const { user } = useAuth();
+  const canExport = user?.role === 'superadmin' || !!user?.canExportCsv;
   const [tickets, setTickets] = useState([]);
   const [clients, setClients] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -175,10 +178,12 @@ export default function TicketsPage() {
 
             {/* Export + New ticket buttons */}
             <div className="w-100 flex justify-end items-center gap-2">
-              <button onClick={() => setExportOpen(true)} className="btn-ghost">
-                <ArrowDownTrayIcon className="h-4 w-4" />
-                Eksport
-              </button>
+              {canExport && (
+                <button onClick={() => setExportOpen(true)} className="btn-ghost">
+                  <ArrowDownTrayIcon className="h-4 w-4" />
+                  Eksport
+                </button>
+              )}
               <Link href="/tickets/new" className="btn-success">
                 <PlusIcon className="h-4 w-4" />
                 Nowe zlecenie

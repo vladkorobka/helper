@@ -20,6 +20,7 @@ const INITIAL_FORM = {
   surname: '',
   email: '',
   permissions: ['tickets'],
+  canExportCsv: false,
 };
 
 export default function AddEmployeePage() {
@@ -56,6 +57,7 @@ export default function AddEmployeePage() {
         name: form.name,
         email: form.email,
         permissions: form.permissions,
+        canExportCsv: form.canExportCsv,
       });
       toast.success(`Zaproszenie wysłane na ${form.email}`);
       router.push('/employees');
@@ -139,6 +141,18 @@ export default function AddEmployeePage() {
                   </label>
                 ))}
               </div>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.canExportCsv}
+                  onChange={(e) => setForm((p) => ({ ...p, canExportCsv: e.target.checked }))}
+                  className="w-4 h-4 text-sky-500 rounded border-gray-300"
+                />
+                <span className="text-sm text-gray-700">Eksport CSV</span>
+              </label>
             </div>
 
             <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">

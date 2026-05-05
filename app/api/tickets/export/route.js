@@ -8,6 +8,9 @@ export async function GET(request) {
     await connectDB();
     const { user, newToken } = await getAuthUser(request);
     requirePermission(user, 'tickets');
+    if (user.role !== 'superadmin' && !user.canExportCsv) {
+      return NextResponse.json({ message: 'Brak uprawnień do eksportu CSV' }, { status: 403 });
+    }
     const { searchParams } = new URL(request.url);
     const date = searchParams.get('date'); // MM-YYYY
     if (!date || !/^\d{2}-\d{4}$/.test(date)) {

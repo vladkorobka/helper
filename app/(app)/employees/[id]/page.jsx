@@ -26,7 +26,7 @@ export default function EmployeeFormPage() {
 
   const [form, setForm] = useState({
     name: '', surname: '', email: '', phone: '',
-    permissions: ['tickets'], active: true,
+    permissions: ['tickets'], active: true, canExportCsv: false,
   });
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEdit);
@@ -41,6 +41,7 @@ export default function EmployeeFormPage() {
           phone: data.phone || '',
           permissions: data.permissions || ['tickets'],
           active: data.active !== false,
+          canExportCsv: !!data.canExportCsv,
         }))
         .catch((err) => toast.error(getErrorMessage(err)))
         .finally(() => setLoading(false));
@@ -138,6 +139,16 @@ export default function EmployeeFormPage() {
               ))}
             </div>
           </div>
+
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.canExportCsv}
+              onChange={(e) => setForm((p) => ({ ...p, canExportCsv: e.target.checked }))}
+              className="w-4 h-4 text-sky-500 rounded border-gray-300"
+            />
+            <span className="text-sm font-medium text-gray-700">Eksport CSV</span>
+          </label>
 
           <label className="flex items-center gap-2 cursor-pointer">
             <input
