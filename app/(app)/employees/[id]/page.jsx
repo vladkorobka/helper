@@ -9,8 +9,13 @@ import { getErrorMessage } from '../../../../lib/utils.js';
 import { useAuth } from '../../../../context/AuthContext.jsx';
 import { CheckIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
 import FormPageSkeleton from '../../../../components/ui/FormPageSkeleton.jsx';
+import Switch from '../../../../components/ui/Switch.jsx';
 
-const PERM_LABEL = { tickets: 'Zlecenia', clients: 'Klienci', programs: 'Programy' };
+const PERM_LABEL = {
+  tickets: 'Zlecenia',
+  clients: 'Klienci',
+  programs: 'Programy',
+};
 
 export default function EmployeeFormPage() {
   const { id } = useParams();
@@ -25,24 +30,32 @@ export default function EmployeeFormPage() {
   }, [user, router]);
 
   const [form, setForm] = useState({
-    name: '', surname: '', email: '', phone: '',
-    permissions: ['tickets'], active: true, canExportCsv: false,
+    name: '',
+    surname: '',
+    email: '',
+    phone: '',
+    permissions: ['tickets'],
+    active: true,
+    canExportCsv: false,
   });
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEdit);
 
   useEffect(() => {
     if (isEdit) {
-      api.get(`/employees/${id}`)
-        .then(({ data }) => setForm({
-          name: data.name || '',
-          surname: data.surname || '',
-          email: data.email || '',
-          phone: data.phone || '',
-          permissions: data.permissions || ['tickets'],
-          active: data.active !== false,
-          canExportCsv: !!data.canExportCsv,
-        }))
+      api
+        .get(`/employees/${id}`)
+        .then(({ data }) =>
+          setForm({
+            name: data.name || '',
+            surname: data.surname || '',
+            email: data.email || '',
+            phone: data.phone || '',
+            permissions: data.permissions || ['tickets'],
+            active: data.active !== false,
+            canExportCsv: !!data.canExportCsv,
+          }),
+        )
         .catch((err) => toast.error(getErrorMessage(err)))
         .finally(() => setLoading(false));
     }
@@ -66,7 +79,10 @@ export default function EmployeeFormPage() {
       } else {
         // New employees are created via invite — direct creation doesn't set password
         // But superadmin can create directly (password set via separate flow)
-        await api.post('/employees', { ...form, login: form.email.split('@')[0] });
+        await api.post('/employees', {
+          ...form,
+          login: form.email.split('@')[0],
+        });
       }
       toast.success(isEdit ? 'Pracownik zaktualizowany' : 'Pracownik dodany');
       router.push('/employees');
@@ -104,68 +120,98 @@ export default function EmployeeFormPage() {
         <form onSubmit={handleSubmit} className="card p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Imię *</label>
-              <input className="input" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} required />
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Imię *
+              </label>
+              <input
+                className="input"
+                value={form.name}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, name: e.target.value }))
+                }
+                required
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nazwisko</label>
-              <input className="input" value={form.surname} onChange={(e) => setForm((p) => ({ ...p, surname: e.target.value }))} />
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nazwisko
+              </label>
+              <input
+                className="input"
+                value={form.surname}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, surname: e.target.value }))
+                }
+              />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-            <input type="email" className="input" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} required />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email *
+            </label>
+            <input
+              type="email"
+              className="input"
+              value={form.email}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, email: e.target.value }))
+              }
+              required
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
-            <input className="input" value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Telefon
+            </label>
+            <input
+              className="input"
+              value={form.phone}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, phone: e.target.value }))
+              }
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Uprawnienia</label>
-            <div className="flex gap-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Uprawnienia
+            </label>
+            <div className="flex flex-col gap-4">
               {Object.entries(PERM_LABEL).map(([key, label]) => (
-                <label key={key} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.permissions.includes(key)}
-                    onChange={() => togglePerm(key)}
-                    className="w-4 h-4 text-sky-500 rounded border-gray-300"
-                  />
-                  <span className="text-sm text-gray-700">{label}</span>
-                </label>
+                <Switch
+                  key={key}
+                  checked={form.permissions.includes(key)}
+                  onChange={() => togglePerm(key)}
+                  label={label}
+                />
               ))}
+              <Switch
+                checked={form.canExportCsv}
+                onChange={(v) => setForm((p) => ({ ...p, canExportCsv: v }))}
+                label={<span className="font-medium">Eksport CSV</span>}
+              />
+
+              <Switch
+                checked={form.active}
+                onChange={(v) => setForm((p) => ({ ...p, active: v }))}
+                label={<span className="font-medium">Konto aktywne</span>}
+              />
             </div>
           </div>
-
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.canExportCsv}
-              onChange={(e) => setForm((p) => ({ ...p, canExportCsv: e.target.checked }))}
-              className="w-4 h-4 text-sky-500 rounded border-gray-300"
-            />
-            <span className="text-sm font-medium text-gray-700">Eksport CSV</span>
-          </label>
-
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.active}
-              onChange={(e) => setForm((p) => ({ ...p, active: e.target.checked }))}
-              className="w-4 h-4 text-sky-500 rounded border-gray-300"
-            />
-            <span className="text-sm font-medium text-gray-700">Konto aktywne</span>
-          </label>
 
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={() => router.push('/employees')} className="btn-ghost">
+            <button
+              type="button"
+              onClick={() => router.push('/employees')}
+              className="btn-ghost"
+            >
               <ArrowUturnLeftIcon className="h-4 w-4" /> Anuluj
             </button>
             <button type="submit" disabled={saving} className="btn-primary">
-              <CheckIcon className="h-4 w-4" /> {saving ? 'Zapisuję...' : 'Zapisz'}
+              <CheckIcon className="h-4 w-4" />{' '}
+              {saving ? 'Zapisuję...' : 'Zapisz'}
             </button>
           </div>
         </form>

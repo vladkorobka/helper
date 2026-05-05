@@ -15,6 +15,7 @@ import {
   ArrowUturnLeftIcon,
 } from '@heroicons/react/24/outline';
 import CustomSelect from '../../../components/ui/CustomSelect.jsx';
+import Switch from '../../../components/ui/Switch.jsx';
 import FormPageSkeleton from '../../../components/ui/FormPageSkeleton.jsx';
 import GlassDatePicker from '../../../components/shared/GlassDatePicker.jsx';
 
@@ -562,50 +563,35 @@ export default function TicketFormPage() {
               </div>
             </div>
 
-            {/* Checkboxes */}
+            {/* Toggles */}
             <div className="flex flex-wrap gap-6 pt-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="commute"
-                  checked={form.commute}
-                  onChange={handleChange}
-                  className="w-4 h-4 text-sky-500 rounded border-gray-300"
-                />
-                <span className="text-sm text-gray-700">Dojazd</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="needsInvoice"
-                  checked={form.needsInvoice}
-                  onChange={handleChange}
-                  className="w-4 h-4 text-violet-500 rounded border-gray-300"
-                />
-                <span className="text-sm text-gray-700">Do fakturowania</span>
-              </label>
+              <Switch
+                checked={form.commute}
+                onChange={(v) => setForm((p) => ({ ...p, commute: v }))}
+                label="Dojazd"
+              />
+              <Switch
+                checked={form.needsInvoice}
+                onChange={(v) => setForm((p) => ({ ...p, needsInvoice: v }))}
+                label="Do fakturowania"
+              />
               {/* invoiced is irreversible — read-only once true */}
               {form.needsInvoice && (
-                <label
-                  className={`flex items-center gap-2 ${form.invoiced ? 'opacity-70' : 'cursor-pointer'}`}
-                >
-                  <input
-                    type="checkbox"
-                    name="invoiced"
-                    checked={form.invoiced}
-                    onChange={form.invoiced ? undefined : handleChange}
-                    disabled={form.invoiced}
-                    className="w-4 h-4 text-green-500 rounded border-gray-300"
-                  />
-                  <span className="text-sm text-gray-700">
-                    Zafakturowane
-                    {form.invoiced && (
-                      <span className="ml-1 text-xs text-gray-400">
-                        (nieodwracalne)
-                      </span>
-                    )}
-                  </span>
-                </label>
+                <Switch
+                  checked={form.invoiced}
+                  onChange={(v) => setForm((p) => ({ ...p, invoiced: v }))}
+                  disabled={form.invoiced}
+                  label={
+                    <>
+                      Zafakturowane
+                      {form.invoiced && (
+                        <span className="ml-1 text-xs text-gray-400">
+                          (nieodwracalne)
+                        </span>
+                      )}
+                    </>
+                  }
+                />
               )}
             </div>
 

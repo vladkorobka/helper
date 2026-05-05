@@ -8,6 +8,7 @@ import api from '../../../../lib/api.js';
 import { getErrorMessage } from '../../../../lib/utils.js';
 import { useAuth } from '../../../../context/AuthContext.jsx';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import Switch from '../../../../components/ui/Switch.jsx';
 
 const PERM_LABEL = {
   tickets: 'Zlecenia',
@@ -91,7 +92,9 @@ export default function AddEmployeePage() {
                 <input
                   className="input"
                   value={form.name}
-                  onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, name: e.target.value }))
+                  }
                   required
                   autoFocus
                 />
@@ -103,7 +106,9 @@ export default function AddEmployeePage() {
                 <input
                   className="input"
                   value={form.surname}
-                  onChange={(e) => setForm((p) => ({ ...p, surname: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, surname: e.target.value }))
+                  }
                 />
               </div>
             </div>
@@ -116,11 +121,14 @@ export default function AddEmployeePage() {
                 type="email"
                 className="input"
                 value={form.email}
-                onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, email: e.target.value }))
+                }
                 required
               />
               <p className="text-xs text-gray-400 mt-1">
-                Na ten adres zostanie wysłane zaproszenie z linkiem aktywacyjnym.
+                Na ten adres zostanie wysłane zaproszenie z linkiem
+                aktywacyjnym.
               </p>
             </div>
 
@@ -128,31 +136,21 @@ export default function AddEmployeePage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Uprawnienia
               </label>
-              <div className="flex gap-5">
+              <div className="flex flex-col gap-5">
                 {Object.entries(PERM_LABEL).map(([key, label]) => (
-                  <label key={key} className="flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.permissions.includes(key)}
-                      onChange={() => togglePerm(key)}
-                      className="w-4 h-4 text-sky-500 rounded border-gray-300"
-                    />
-                    <span className="text-sm text-gray-700">{label}</span>
-                  </label>
+                  <Switch
+                    key={key}
+                    checked={form.permissions.includes(key)}
+                    onChange={() => togglePerm(key)}
+                    label={label}
+                  />
                 ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
+                <Switch
                   checked={form.canExportCsv}
-                  onChange={(e) => setForm((p) => ({ ...p, canExportCsv: e.target.checked }))}
-                  className="w-4 h-4 text-sky-500 rounded border-gray-300"
+                  onChange={(v) => setForm((p) => ({ ...p, canExportCsv: v }))}
+                  label="Eksport CSV"
                 />
-                <span className="text-sm text-gray-700">Eksport CSV</span>
-              </label>
+              </div>
             </div>
 
             <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
