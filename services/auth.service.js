@@ -72,16 +72,8 @@ export const authService = {
       throw Object.assign(new Error('Zaproszenie wygasło lub jest nieprawidłowe'), { statusCode: 400 });
     }
 
-    // Create login from email (before @)
-    const loginBase = invite.email.split('@')[0].replace(/[^a-z0-9]/g, '');
-    let login = loginBase;
-    let counter = 1;
-    while (await Employee.findOne({ login })) {
-      login = `${loginBase}${counter++}`;
-    }
-
     const employee = await Employee.create({
-      login,
+      login: invite.email,
       password,
       email: invite.email,
       name,

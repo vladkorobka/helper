@@ -28,7 +28,7 @@ export const employeeService = {
   async create(data) {
     await connectDB();
     if (!data.login) {
-      data.login = data.email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
+      data.login = data.email;
     }
     if (!data.password) {
       data.password = crypto.randomBytes(8).toString('hex') + 'A1';
