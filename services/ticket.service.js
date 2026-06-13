@@ -18,6 +18,7 @@ export const ticketService = {
       client,
       executor,
       status,
+      needsInvoice,
       date,
       sortField = 'date',
       sortOrder = 'desc',
@@ -55,6 +56,9 @@ export const ticketService = {
     }
 
     if (status) match.status = status;
+
+    if (needsInvoice === 'true') match.needsInvoice = true;
+    else if (needsInvoice === 'false') match.needsInvoice = { $ne: true };
 
     const sortFieldMap = {
       date: 'date',
@@ -162,7 +166,7 @@ export const ticketService = {
     };
 
     const header =
-      'Klient;Notatka klienta;Data;Czas (w minutach);Kto zlecił;Kto zrobił;Opis;Uwagi;Cena;Kategoria;Dojazd;Typ usługi;Wystawiona faktura';
+      'Klient;Notatka klienta;Data;Czas (w minutach);Kto zlecił;Kto zrobił;Opis;Uwagi;Notatka wewnętrzna;Cena;Kategoria;Dojazd;Typ usługi;Wystawiona faktura';
     const rows = tickets.map((t) =>
       [
         t.client?.name,
@@ -173,6 +177,7 @@ export const ticketService = {
         [t.executor?.name, t.executor?.surname].filter(Boolean).join(' '),
         t.description,
         t.note,
+        t.internalNote,
         t.priceType,
         t.category,
         t.commute ? 'Tak' : 'Nie',

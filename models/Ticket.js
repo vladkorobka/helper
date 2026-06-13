@@ -15,6 +15,7 @@ const ticketSchema = new mongoose.Schema(
     duration: { type: Number, required: true, min: 0 }, // minutes
     description: { type: String, required: true, trim: true },
     note: { type: String, default: '' },
+    internalNote: { type: String, default: '' },
     service_type: { type: String, required: true, trim: true },
     priceType: { type: Number, default: 0 },
     category: { type: String, required: true, trim: true },

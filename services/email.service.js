@@ -1,4 +1,34 @@
 import nodemailer from 'nodemailer';
+import path from 'path';
+
+const LOGO_CID = 'lider-logo';
+const LOGO_SOURCE_PATH = path.join(process.cwd(), 'public', 'lider_logo.webp');
+let logoBufferPromise = null;
+
+async function getLogoBuffer() {
+  if (!logoBufferPromise) {
+    logoBufferPromise = (async () => {
+      try {
+        const { default: sharp } = await import('sharp');
+        return await sharp(LOGO_SOURCE_PATH)
+          .resize({ width: 400 })
+          .png()
+          .toBuffer();
+      } catch (err) {
+        console.warn('[email] Failed to prepare Lider logo:', err.message);
+        logoBufferPromise = null;
+        return null;
+      }
+    })();
+  }
+  return logoBufferPromise;
+}
+
+const REKLAMACJA_NOTICE_HTML = `
+  W przypadku gdy mają Państwo zastrzeżenia do wykonanych prac lub ich wyceny, prosimy o zgłoszenie ich poprzez odpowiedź na niniejszą wiadomość w terminie 7 dni od daty otrzymania protokołu. Brak zastrzeżeń zgłoszonych w powyższym terminie będzie oznaczał akceptację przedstawionego protokołu i wynikłych z tego tytułu skutków finansowych.
+  <br><br>
+  Według stawki godzinowej liczona będzie każda rozpoczęta godzina pracy serwisanta.
+`;
 
 let transporter = null;
 
@@ -17,13 +47,14 @@ function getTransporter() {
   return transporter;
 }
 
-export async function sendMail({ to, subject, html }) {
+export async function sendMail({ to, subject, html, attachments }) {
   const transport = getTransporter();
   return transport.sendMail({
     from: process.env.EMAIL_FROM,
     to,
     subject,
     html,
+    ...(attachments?.length ? { attachments } : {}),
   });
 }
 
@@ -91,9 +122,18 @@ export async function sendTicketReportEmail({ ticket }) {
 
   const to = ticket.email || client.email;
 
+  const logoBuffer = await getLogoBuffer();
+  const logoHtml = logoBuffer
+    ? `<img src="cid:${LOGO_CID}" width="200" border="0" alt="Lider IT" style="display:block; margin:0 auto 12px; height:auto;">`
+    : '';
+  const attachments = logoBuffer
+    ? [{ filename: 'lider-logo.png', content: logoBuffer, cid: LOGO_CID, contentDisposition: 'inline' }]
+    : undefined;
+
   return sendMail({
     to,
     subject: 'Lider IT Sp. z o.o | Protokół serwisowy',
+    attachments,
     html: `
 <!DOCTYPE html>
 <html lang="pl">
@@ -109,9 +149,10 @@ export async function sendTicketReportEmail({ ticket }) {
 
           <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%); padding: 32px 40px; text-align: center;">
-              <p style="margin: 0 0 4px 0; color: rgba(255,255,255,0.75); font-size: 13px; letter-spacing: 2px; text-transform: uppercase;">Lider IT Sp. z o.o</p>
+            <td bgcolor="#1e3a5f" style="background-color: #1e3a5f; background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%); padding: 32px 40px; text-align: center;">
+              ${logoHtml}
               <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Protokół serwisowy</h1>
+              <p style="margin: 6px 0 0 0; color: #cbd5e1; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;">Lider IT Sp. z o.o</p>
             </td>
           </tr>
 
@@ -161,7 +202,12 @@ export async function sendTicketReportEmail({ ticket }) {
                 </tr>
               </table>
 
-              <p style="margin: 24px 0 0 0; color: #6b7280; font-size: 13px; line-height: 1.6;">
+              <div style="margin: 20px 0 0 0; padding: 16px 20px; background: #f9fafb; border-left: 3px solid #1e3a5f; border-radius: 0 6px 6px 0;">
+                <p style="margin: 0 0 8px 0; font-weight: 700; color: #1e3a5f; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px;">Reklamacja</p>
+                <p style="margin: 0; color: #4b5563; font-size: 13px; line-height: 1.6;">${REKLAMACJA_NOTICE_HTML}</p>
+              </div>
+
+              <p style="margin: 16px 0 0 0; color: #6b7280; font-size: 13px; line-height: 1.6;">
                 Protokół sporządził: <strong style="color: #374151;">${createdBy}</strong>
               </p>
 

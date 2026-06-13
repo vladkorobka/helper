@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import Layout from '../../../components/layout/Layout.jsx';
@@ -36,7 +36,10 @@ export default function ClientFormPage() {
   const [form, setForm] = useState(INITIAL);
   const [programs, setPrograms] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [allTags, setAllTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
+  const [tagDropdown, setTagDropdown] = useState(false);
+  const tagRef = useRef(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEdit);
   const [nipLoading, setNipLoading] = useState(false);
@@ -44,6 +47,11 @@ export default function ClientFormPage() {
   useEffect(() => {
     api.get('/programs/dropdown').then(({ data }) => setPrograms(data));
     api.get('/employees/executors').then(({ data }) => setEmployees(data));
+    api.get('/clients/dropdown').then(({ data }) => {
+      const tags = new Set();
+      data.forEach((c) => c.tags?.forEach((t) => t && tags.add(t)));
+      setAllTags([...tags].sort());
+    });
     if (isEdit) {
       api
         .get(`/clients/${id}`)
@@ -85,13 +93,33 @@ export default function ClientFormPage() {
     });
   };
 
-  const addTag = () => {
-    const t = tagInput.trim().toLowerCase().replace(/\s+/g, '-');
+  const normalizeTag = (raw) =>
+    raw.trim().toLowerCase().replace(/\s+/g, '-');
+
+  const addTag = (raw = tagInput) => {
+    const t = normalizeTag(raw);
     if (t && !form.tags.includes(t)) {
       setForm((p) => ({ ...p, tags: [...p.tags, t] }));
     }
     setTagInput('');
+    setTagDropdown(false);
   };
+
+  const tagSuggestions = useMemo(() => {
+    const q = normalizeTag(tagInput);
+    return allTags
+      .filter((t) => !form.tags.includes(t))
+      .filter((t) => !q || t.includes(q));
+  }, [allTags, form.tags, tagInput]);
+
+  useEffect(() => {
+    const h = (e) => {
+      if (tagRef.current && !tagRef.current.contains(e.target))
+        setTagDropdown(false);
+    };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
 
   const addProgram = () => {
     setForm((p) => ({
@@ -344,19 +372,38 @@ export default function ClientFormPage() {
               Tagi
             </h2>
             <div className="flex gap-2">
-              <input
-                className="input flex-1"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addTag();
-                  }
-                }}
-                placeholder="Wpisz tag i naciśnij Enter"
-              />
-              <button type="button" onClick={addTag} className="btn-ghost">
+              <div ref={tagRef} className="relative flex-1">
+                <input
+                  className="input"
+                  value={tagInput}
+                  onChange={(e) => {
+                    setTagInput(e.target.value);
+                    setTagDropdown(true);
+                  }}
+                  onFocus={() => setTagDropdown(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addTag();
+                    }
+                  }}
+                  placeholder="Wpisz tag i naciśnij Enter"
+                />
+                {tagDropdown && tagSuggestions.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-52 overflow-y-auto">
+                    {tagSuggestions.map((t) => (
+                      <div
+                        key={t}
+                        onClick={() => addTag(t)}
+                        className="px-4 py-2 hover:bg-sky-50 cursor-pointer text-sm text-gray-800 border-b border-gray-50 last:border-0"
+                      >
+                        #{t}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <button type="button" onClick={() => addTag()} className="btn-ghost">
                 Dodaj
               </button>
             </div>

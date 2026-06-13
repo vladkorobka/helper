@@ -27,6 +27,7 @@ const INITIAL = {
   duration: 0,
   description: '',
   note: '',
+  internalNote: '',
   service_type: '',
   priceType: 0,
   category: '',
@@ -64,7 +65,9 @@ export default function TicketFormPage() {
     priceTypes: [],
     serviceTypes: [],
     executionTypes: [],
+    categoryPriceDefaults: {},
   });
+  const skipNextCategoryAutofill = useRef(isEdit);
 
   // Client autocomplete
   const [clientSearch, setClientSearch] = useState('');
@@ -116,6 +119,7 @@ export default function TicketFormPage() {
             orderedBy: data.orderedBy || '',
             description: data.description || '',
             note: data.note || '',
+            internalNote: data.internalNote || '',
             service_type: data.service_type || '',
             priceType: data.priceType || 0,
             category: data.category || '',
@@ -168,6 +172,19 @@ export default function TicketFormPage() {
       if (c) setForm((p) => ({ ...p, email: c.email || p.email }));
     }
   }, [form.client]);
+
+  // Auto-fill priceType from category default
+  useEffect(() => {
+    if (skipNextCategoryAutofill.current) {
+      skipNextCategoryAutofill.current = false;
+      return;
+    }
+    if (!form.category) return;
+    const def = settings.categoryPriceDefaults?.[form.category];
+    if (def != null) {
+      setForm((p) => ({ ...p, priceType: Number(def) }));
+    }
+  }, [form.category, settings.categoryPriceDefaults]);
 
   // Outside click handlers
   useEffect(() => {
@@ -473,6 +490,23 @@ export default function TicketFormPage() {
               <textarea
                 name="note"
                 value={form.note}
+                onChange={handleChange}
+                rows={2}
+                className="input resize-none"
+              />
+            </div>
+
+            {/* Internal note */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Notatka wewnętrzna
+              </label>
+              <p className="text-xs text-gray-400 mb-1">
+                Widoczna tylko w eksporcie CSV — nie pojawi się w raporcie dla klienta.
+              </p>
+              <textarea
+                name="internalNote"
+                value={form.internalNote}
                 onChange={handleChange}
                 rows={2}
                 className="input resize-none"

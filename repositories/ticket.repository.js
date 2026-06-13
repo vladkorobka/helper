@@ -87,6 +87,7 @@ export const ticketRepository = {
           orderedBy: 1,
           description: 1,
           note: 1,
+          internalNote: 1,
           service_type: 1,
           priceType: 1,
           category: 1,

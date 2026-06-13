@@ -31,6 +31,7 @@ const DEFAULT_FILTERS = {
   client: '',
   executor: '',
   status: '',
+  needsInvoice: '',
 };
 
 function getSaved(key, fallback) {
@@ -41,6 +42,10 @@ function getSaved(key, fallback) {
   }
 }
 
+function getSavedFilters() {
+  return { ...DEFAULT_FILTERS, ...getSaved(FILTER_KEY, {}) };
+}
+
 export default function TicketsPage() {
   const { user } = useAuth();
   const canExport = user?.role === 'superadmin' || !!user?.canExportCsv;
@@ -49,9 +54,7 @@ export default function TicketsPage() {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [filters, setFilters] = useState(() =>
-    getSaved(FILTER_KEY, DEFAULT_FILTERS),
-  );
+  const [filters, setFilters] = useState(getSavedFilters);
   const [sort, setSort] = useState(() =>
     getSaved(SORT_KEY, { field: 'date', order: 'desc' }),
   );
@@ -90,6 +93,7 @@ export default function TicketsPage() {
     if (filters.client) params.set('client', filters.client);
     if (filters.executor) params.set('executor', filters.executor);
     if (filters.status) params.set('status', filters.status);
+    if (filters.needsInvoice) params.set('needsInvoice', filters.needsInvoice);
 
     api
       .get(`/tickets?${params}`, { signal: controller.signal })
@@ -235,6 +239,21 @@ export default function TicketsPage() {
                     { value: 'sent', label: 'Wysłane' },
                   ]}
                   placeholder="Wszystkie statusy"
+                />
+              </div>
+
+              <div className="w-56">
+                <CustomSelect
+                  value={filters.needsInvoice}
+                  onChange={(val) =>
+                    setFilters((p) => ({ ...p, needsInvoice: val }))
+                  }
+                  options={[
+                    { value: '', label: 'Faktura: wszystkie' },
+                    { value: 'true', label: 'Do fakturowania' },
+                    { value: 'false', label: 'Bez faktury' },
+                  ]}
+                  placeholder="Faktura: wszystkie"
                 />
               </div>
 

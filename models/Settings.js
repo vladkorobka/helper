@@ -5,6 +5,7 @@ const settingsSchema = new mongoose.Schema(
     priceTypes: { type: [Number], default: [100, 150, 200, 250] },
     serviceTypes: { type: [String], default: ['Serwis', 'Konsultacja', 'Instalacja', 'Szkolenie'] },
     executionTypes: { type: [String], default: ['Zdalne', 'Na miejscu', 'Zlecenie', 'Projekt'] },
+    categoryPriceDefaults: { type: Map, of: Number, default: {} },
     programTypes: { type: [String], default: ['Systemy ERP', 'Systemy FK', 'Systemy kadrowe', 'Systemy magazynowe'] },
   },
   { timestamps: true }

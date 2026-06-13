@@ -7,6 +7,7 @@ import { useAuth } from '../../../context/AuthContext.jsx';
 import api from '../../../lib/api.js';
 import { getErrorMessage } from '../../../lib/utils.js';
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import CustomSelect from '../../../components/ui/CustomSelect.jsx';
 
 function TypeSection({ title, field, items, onAdd, onRemove }) {
   const [input, setInput] = useState('');
@@ -54,10 +55,69 @@ function TypeSection({ title, field, items, onAdd, onRemove }) {
   );
 }
 
+function ExecutionTypesSection({ items, priceTypes, defaults, onAdd, onRemove, onSetDefault }) {
+  const [input, setInput] = useState('');
+  const handleAdd = () => {
+    const val = input.trim();
+    if (!val) return;
+    onAdd('executionTypes', val);
+    setInput('');
+  };
+  const priceOptions = [
+    { value: '', label: 'Brak' },
+    ...priceTypes.map((p) => ({ value: String(p), label: `${p} zł/h` })),
+  ];
+
+  return (
+    <div className="card p-5">
+      <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-1">Kategorie wykonania</h2>
+      <p className="text-xs text-gray-400 mb-4">
+        Domyślna cena zostanie automatycznie podstawiona przy tworzeniu nowego zlecenia z daną kategorią.
+      </p>
+      <div className="flex gap-2 mb-3">
+        <input
+          className="input flex-1"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAdd(); } }}
+          placeholder="Nowa kategoria"
+        />
+        <button onClick={handleAdd} className="btn-ghost">
+          <PlusIcon className="h-4 w-4" /> Dodaj
+        </button>
+      </div>
+      <div className="flex flex-col gap-2">
+        {items.map((cat) => (
+          <div key={cat} className="flex items-center gap-2 px-3 py-2 bg-gray-50/60 border border-gray-200 rounded-lg">
+            <span className="text-sm font-medium text-gray-800 flex-1">{cat}</span>
+            <div className="w-40">
+              <CustomSelect
+                value={defaults[cat] != null ? String(defaults[cat]) : ''}
+                onChange={(val) => onSetDefault(cat, val)}
+                options={priceOptions}
+                placeholder="Brak"
+              />
+            </div>
+            <button
+              onClick={() => onRemove('executionTypes', cat)}
+              className="text-gray-400 hover:text-red-500 transition p-1"
+            >
+              <XMarkIcon className="h-4 w-4" />
+            </button>
+          </div>
+        ))}
+        {items.length === 0 && (
+          <p className="text-xs text-gray-400 text-center py-2">Brak kategorii</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const [settings, setSettings] = useState({ priceTypes: [], serviceTypes: [], executionTypes: [], programTypes: [] });
+  const [settings, setSettings] = useState({ priceTypes: [], serviceTypes: [], executionTypes: [], programTypes: [], categoryPriceDefaults: {} });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -93,6 +153,19 @@ export default function SettingsPage() {
     }
   };
 
+  const handleSetCategoryDefault = async (category, priceType) => {
+    try {
+      const { data } = await api.post('/settings/category-default', {
+        category,
+        priceType: priceType === '' ? null : priceType,
+      });
+      setSettings(data);
+      toast.success('Zapisano');
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    }
+  };
+
   if (loading) {
     return <Layout><div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" /></div></Layout>;
   }
@@ -116,12 +189,13 @@ export default function SettingsPage() {
           onAdd={handleAdd}
           onRemove={handleRemove}
         />
-        <TypeSection
-          title="Kategorie wykonania"
-          field="executionTypes"
+        <ExecutionTypesSection
           items={settings.executionTypes}
+          priceTypes={settings.priceTypes}
+          defaults={settings.categoryPriceDefaults || {}}
           onAdd={handleAdd}
           onRemove={handleRemove}
+          onSetDefault={handleSetCategoryDefault}
         />
         <TypeSection
           title="Kategorie programów"

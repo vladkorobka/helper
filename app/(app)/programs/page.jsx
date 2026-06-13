@@ -21,7 +21,7 @@ export default function ProgramsPage() {
   const [deleting, setDeleting] = useState(false);
   const canEdit =
     user?.role === 'superadmin' || user?.permissions?.includes('programs');
-  const canDelete = user?.role === 'superadmin';
+  const canDelete = canEdit;
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
