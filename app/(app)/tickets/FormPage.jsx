@@ -216,6 +216,7 @@ export default function TicketFormPage() {
       clients.filter(
         (c) =>
           c.name?.toLowerCase().includes(lq) ||
+          c.code?.toLowerCase().includes(lq) ||
           c.nip?.includes(lq) ||
           c.tags?.some((t) => t.toLowerCase().includes(lq)),
       ),
@@ -367,7 +368,7 @@ export default function TicketFormPage() {
                     setClientDropdown(true);
                     setFilteredClients(clients);
                   }}
-                  placeholder="Szukaj po nazwie, NIP lub tagach..."
+                  placeholder="Szukaj po nazwie, kodzie, NIP lub tagach..."
                 />
                 {clientDropdown && filteredClients.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-52 overflow-y-auto">
