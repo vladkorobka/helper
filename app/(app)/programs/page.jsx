@@ -1,12 +1,13 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import Layout from '../../../components/layout/Layout.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
+import SortableHeader from '../../../components/shared/SortableHeader.jsx';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import api from '../../../lib/api.js';
-import { getErrorMessage } from '../../../lib/utils.js';
+import { getErrorMessage, sortByField } from '../../../lib/utils.js';
 import {
   PlusIcon,
   EllipsisHorizontalIcon,
@@ -19,6 +20,7 @@ export default function ProgramsPage() {
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [sort, setSort] = useState({ field: 'code', order: 'asc' });
   const canEdit =
     user?.role === 'superadmin' || user?.permissions?.includes('programs');
   const canDelete = canEdit;
@@ -37,6 +39,18 @@ export default function ProgramsPage() {
       .catch((err) => toast.error(getErrorMessage(err)))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleSort = (field) => {
+    setSort((prev) => ({
+      field,
+      order: prev.field === field && prev.order === 'asc' ? 'desc' : 'asc',
+    }));
+  };
+
+  const sortedPrograms = useMemo(
+    () => sortByField(programs, sort.field, sort.order),
+    [programs, sort.field, sort.order],
+  );
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -68,8 +82,17 @@ export default function ProgramsPage() {
             <table className="w-full">
               <thead className="sticky top-0 z-10 bg-slate-50 border-b border-gray-100">
                 <tr>
-                  <th className="table-header w-[100px]">Kod</th>
-                  <th className="table-header">Nazwa</th>
+                  <SortableHeader
+                    field="code"
+                    sort={sort}
+                    onSort={handleSort}
+                    className="w-[100px]"
+                  >
+                    Kod
+                  </SortableHeader>
+                  <SortableHeader field="name" sort={sort} onSort={handleSort}>
+                    Nazwa
+                  </SortableHeader>
                   <th className="table-header hidden md:table-cell">
                     Kategorie
                   </th>
@@ -99,7 +122,7 @@ export default function ProgramsPage() {
                     </td>
                   </tr>
                 ) : (
-                  programs.map((p) => (
+                  sortedPrograms.map((p) => (
                     <tr key={p._id} className="hover:bg-gray-50 transition">
                       <td className="table-cell font-mono font-medium text-gray-900 text-sm">
                         {p.code}

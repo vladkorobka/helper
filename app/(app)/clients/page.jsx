@@ -1,11 +1,12 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import Layout from '../../../components/layout/Layout.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
+import SortableHeader from '../../../components/shared/SortableHeader.jsx';
 import api from '../../../lib/api.js';
-import { getErrorMessage } from '../../../lib/utils.js';
+import { getErrorMessage, sortByField } from '../../../lib/utils.js';
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -19,6 +20,7 @@ export default function ClientsPage() {
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [sort, setSort] = useState({ field: 'code', order: 'asc' });
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -49,6 +51,18 @@ export default function ClientsPage() {
     const t = setTimeout(() => fetchClients(search), 350);
     return () => clearTimeout(t);
   }, [search]);
+
+  const handleSort = (field) => {
+    setSort((prev) => ({
+      field,
+      order: prev.field === field && prev.order === 'asc' ? 'desc' : 'asc',
+    }));
+  };
+
+  const sortedClients = useMemo(
+    () => sortByField(clients, sort.field, sort.order),
+    [clients, sort.field, sort.order],
+  );
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -89,8 +103,12 @@ export default function ClientsPage() {
             <table className="w-full">
               <thead className="sticky top-0 z-10 bg-slate-50 border-b border-gray-100">
                 <tr>
-                  <th className="table-header">Kod</th>
-                  <th className="table-header">Nazwa</th>
+                  <SortableHeader field="code" sort={sort} onSort={handleSort}>
+                    Kod
+                  </SortableHeader>
+                  <SortableHeader field="name" sort={sort} onSort={handleSort}>
+                    Nazwa
+                  </SortableHeader>
                   <th className="table-header hidden md:table-cell">NIP</th>
                   <th className="table-header hidden lg:table-cell">Email</th>
                   <th className="table-header hidden lg:table-cell">Tagi</th>
@@ -119,7 +137,7 @@ export default function ClientsPage() {
                     </td>
                   </tr>
                 ) : (
-                  clients.map((c) => (
+                  sortedClients.map((c) => (
                     <tr key={c._id} className="hover:bg-gray-50 transition">
                       <td className="table-cell font-mono font-medium text-gray-900 text-sm">
                         {c.code}
