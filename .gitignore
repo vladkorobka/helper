@@ -44,8 +44,17 @@ next-env.d.ts
 .superpowers/
 
 # project-specific
+/pm2-installer
 public/uploads/avatars/*.webp
 public/uploads/avatars/*.jpg
 public/uploads/avatars/*.png
 CLAUDE.local.md
 bash.exe.stackdump
+
+run-app.bat
+stop-app.bat
+setup-autostart.bat
+build-and-run.bat
+/bot
+ecosystem.config.js
+add_bot.txt
